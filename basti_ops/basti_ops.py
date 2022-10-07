@@ -90,7 +90,7 @@ def copy_into_step_obj(obj: bpy.types.Mesh, cut: bool) -> bpy.types.Mesh:
     return obj_step
 
 
-def raycast(context, event) -> tuple[bool, list[float], list[float], int, bpy.types.Object]:
+def raycast(context, coords) -> tuple[bool, list[float], list[float], int, bpy.types.Object]:
     """Casts a ray at the mouse position and returns raycast_result, location, normal, face_index, obj_target"""
     from bpy_extras import view3d_utils
     scene = context.scene
@@ -99,15 +99,15 @@ def raycast(context, event) -> tuple[bool, list[float], list[float], int, bpy.ty
     mouse_coord = event.mouse_region_x, event.mouse_region_y
     depsgraph = bpy.context.evaluated_depsgraph_get()
 
-    view_vector = view3d_utils.region_2d_to_vector_3d(region, rv3d, mouse_coord)
-    ray_origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, mouse_coord)
+    view_vector = view3d_utils.region_2d_to_vector_3d(region, rv3d, coords)
+    ray_origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, coords)
 
     raycast_result, location, normal, polygon_index, obj_target, _ = scene.ray_cast(depsgraph, ray_origin, view_vector)
     return raycast_result, location, normal, polygon_index, obj_target
 
 
-def copy_cut_to_mesh(context, event, cut=False):
-    raycast_result, _, _, _, obj_target = raycast(context, event)
+def copy_cut_to_mesh(context, coords, cut=False):
+    raycast_result, _, _, _, obj_target = raycast(context, coords)
 
     bpy.ops.object.mode_set(mode='OBJECT')
     objs_selected = [obj for obj in context.selected_objects if obj.type == 'MESH']
@@ -142,24 +142,12 @@ class BastiCopyToMesh(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        context.window_manager.modal_handler_add(self)
-        self._timer = context.window_manager.event_timer_add(0.1, window=context.window)
-        return {'RUNNING_MODAL'}
+        copy_cut_to_mesh(context, self.coords)
+        return {'FINISHED'}
 
-    def modal(self, context, event):
-        if event.type == 'ESC':
-            return self.cancel(context)
-
-        if event.type == 'TIMER':
-            copy_cut_to_mesh(context, event)
-            context.window_manager.event_timer_remove(self._timer)
-            return {'FINISHED'}
-
-        return {'PASS_THROUGH'}
-
-    def cancel(self, context):
-        context.window_manager.event_timer_remove(self._timer)
-        return {'CANCELLED'}
+    def invoke(self, context, event):
+        self.coords = event.mouse_region_x, event.mouse_region_y
+        return self.execute(context)
 
 
 class BastiCutToMesh(bpy.types.Operator):
@@ -173,24 +161,12 @@ class BastiCutToMesh(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        context.window_manager.modal_handler_add(self)
-        self._timer = context.window_manager.event_timer_add(0.1, window=context.window)
-        return {'RUNNING_MODAL'}
+        copy_cut_to_mesh(context, self.coords, True)
+        return {'FINISHED'}
 
-    def modal(self, context, event):
-        if event.type == 'ESC':
-            return self.cancel(context)
-
-        if event.type == 'TIMER':
-            copy_cut_to_mesh(context, event, True)
-            context.window_manager.event_timer_remove(self._timer)
-            return {'FINISHED'}
-
-        return {'PASS_THROUGH'}
-
-    def cancel(self, context):
-        context.window_manager.event_timer_remove(self._timer)
-        return {'CANCELLED'}
+    def invoke(self, context, event):
+        self.coords = event.mouse_region_x, event.mouse_region_y
+        return self.execute(context)
 
 
 def copy_to_clipboard(context, cut=False):
@@ -382,8 +358,8 @@ def move_objects_to_point(objs: list[bpy.types.Object], location: Vector, orient
             obj.rotation_euler = difference
 
 
-def move_to_face(context, event, orient=False):
-    raycast_result, location, normal, _, obj_target = raycast(context, event)
+def move_to_face(context, coords, orient=False):
+    raycast_result, location, normal, _, obj_target = raycast(context, coords)
     if not raycast_result:
         return
     obj_active = context.active_object
@@ -409,24 +385,12 @@ class BastiMoveToFace(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        context.window_manager.modal_handler_add(self)
-        self._timer = context.window_manager.event_timer_add(0.1, window=context.window)
-        return {'RUNNING_MODAL'}
+        move_to_face(context, self.coords)
+        return {'FINISHED'}
 
-    def modal(self, context, event):
-        if event.type == 'ESC':
-            return self.cancel(context)
-
-        if event.type == 'TIMER':
-            move_to_face(context, event)
-            context.window_manager.event_timer_remove(self._timer)
-            return {'FINISHED'}
-
-        return {'PASS_THROUGH'}
-
-    def cancel(self, context):
-        context.window_manager.event_timer_remove(self._timer)
-        return {'CANCELLED'}
+    def invoke(self, context, event):
+        self.coords = event.mouse_region_x, event.mouse_region_y
+        return self.execute(context)
 
 
 class BastiMoveAndOrientToFace(bpy.types.Operator):
@@ -440,24 +404,12 @@ class BastiMoveAndOrientToFace(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        context.window_manager.modal_handler_add(self)
-        self._timer = context.window_manager.event_timer_add(0.1, window=context.window)
-        return {'RUNNING_MODAL'}
+        move_to_face(context, self.coords, True)
+        return {'FINISHED'}
 
-    def modal(self, context, event):
-        if event.type == 'ESC':
-            return self.cancel(context)
-
-        if event.type == 'TIMER':
-            move_to_face(context, event)
-            context.window_manager.event_timer_remove(self._timer)
-            return {'FINISHED'}
-
-        return {'PASS_THROUGH'}
-
-    def cancel(self, context):
-        context.window_manager.event_timer_remove(self._timer)
-        return {'CANCELLED'}
+    def invoke(self, context, event):
+        self.coords = event.mouse_region_x, event.mouse_region_y
+        return self.execute(context)
 
 
 def get_materials_on_objects(objs: list[bpy.types.Mesh]) -> list[bpy.types.Material]:
@@ -493,8 +445,8 @@ def create_new_material():
     return bpy.data.materials.new(new_name)
 
 
-def apply_material(context, event):
-    raycast_result, _, _, polygon_index, obj_target = raycast(context, event)
+def apply_material(context, coords):
+    raycast_result, _, _, polygon_index, obj_target = raycast(context, coords)
     obj_active = context.active_object
     
     if not raycast_result:
@@ -546,24 +498,12 @@ class BastiApplyMaterial(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        context.window_manager.modal_handler_add(self)
-        self._timer = context.window_manager.event_timer_add(0.1, window=context.window)
-        return {'RUNNING_MODAL'}
+        apply_material(context, self.coords)
+        return {'FINISHED'}
 
-    def modal(self, context, event):
-        if event.type == 'ESC':
-            return self.cancel(context)
-
-        if event.type == 'TIMER':
-            apply_material(context, event)
-            context.window_manager.event_timer_remove(self._timer)
-            return {'FINISHED'}
-
-        return {'PASS_THROUGH'}
-
-    def cancel(self, context):
-        context.window_manager.event_timer_remove(self._timer)
-        return {'CANCELLED'}
+    def invoke(self, context, event):
+        self.coords = event.mouse_region_x, event.mouse_region_y
+        return self.execute(context)
 
 
 # class TraceSpriteToMesh(bpy.types.Operator):
