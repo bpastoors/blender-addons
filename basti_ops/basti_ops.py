@@ -96,7 +96,6 @@ def raycast(context, coords) -> tuple[bool, list[float], list[float], int, bpy.t
     scene = context.scene
     region = context.region
     rv3d = context.region_data
-    mouse_coord = event.mouse_region_x, event.mouse_region_y
     depsgraph = bpy.context.evaluated_depsgraph_get()
 
     view_vector = view3d_utils.region_2d_to_vector_3d(region, rv3d, coords)
