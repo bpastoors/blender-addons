@@ -10,10 +10,11 @@ def copy_selected_into_new_obj(obj: bpy.types.Mesh, cut: bool) -> bpy.types.Mesh
     """Copies or cuts selected faces of the mesh into a temporary mesh"""
     obj_source, verts_selected, polys_selected = get_evaluated_obj_and_selection(obj)
 
-    vert_locations = [
+    vert_locations = {
+        v.index:
         bpy.context.object.matrix_world @ obj_source.data.vertices[v.index].co.copy()
         for v in verts_selected
-    ]
+    }
 
     bm_target = bmesh.new()
     bm_target.from_mesh(obj_source.data)
@@ -35,7 +36,8 @@ def copy_selected_into_new_obj(obj: bpy.types.Mesh, cut: bool) -> bpy.types.Mesh
         bm_source.free()
 
     for v in verts_keep:
-        v.co = vert_locations[v.index]
+        if v.index in vert_locations:
+            v.co = vert_locations[v.index]
 
     if polys_selected:
         bmesh.ops.delete(bm_target, geom=polys_delete, context="FACES")
@@ -61,7 +63,7 @@ class BastiCopyToMesh(bpy.types.Operator):
         objs_selected = [obj for obj in context.selected_objects if obj.type == "MESH"]
         objs_step = []
         for obj in objs_selected:
-            objs_step.append(self.copy_selected_into_new_obj(obj, cut))
+            objs_step.append(copy_selected_into_new_obj(obj, cut))
 
         if raycast_result and obj_target.type == "MESH":
             objs_merge = [obj_target]
@@ -81,7 +83,7 @@ class BastiCopyToMesh(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object is not None
+        return context.active_object is not None and context.active_object.type == 'MESH' and context.active_object.mode == 'EDIT'
 
     def execute(self, context):
         self.copy_cut_to_mesh(context, self.coords, self.cut)
@@ -120,51 +122,26 @@ def copy_to_clipboard(context, cut=False):
     bpy.ops.object.mode_set(mode="EDIT")
 
 def paste_from_clipboard(context):
+    current_mode = context.active_object.mode
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="DESELECT")
     bpy.ops.object.mode_set(mode="OBJECT")
     obj_target = context.active_object
-
-    bpy.ops.view3d.pastebuffer()
-    obj_copy = bpy.data.objects[len(bpy.data.objects) - 1]
-
-    context_target = {
-        "object": obj_target,
-        "active_object": obj_target,
-        "selected_objects": [obj_target],
-        "selected_editable_objects": [obj_target],
-        "mode": "EDIT_MESH",
-    }
-    context_copy = {
-        "object": obj_copy,
-        "active_object": obj_copy,
-        "selected_objects": [obj_copy],
-        "selected_editable_objects": [obj_copy],
-        "mode": "EDIT_MESH",
-    }
-
-    # bpy.ops.object.mode_set({"active_object": obj_target}, mode='EDIT')
-    with bpy.context.temp_override(**context_target):
-        bpy.ops.mesh.select_all(action="SELECT")
-    with bpy.context.temp_override(**context_copy):
-        bpy.ops.mesh.select_all(action="DESELECT")
-    # bpy.ops.object.mode_set({"active_object": obj_target}, mode='OBJECT')
-
-    # bpy.ops.object.select_all(action='DESELECT')
-    # obj_target.select_set(True)
-    # bpy.context.view_layer.objects.active = obj_target
-    return
-    bpy.ops.object.mode_set({"active_object": obj_copy}, mode="EDIT")
-    bpy.ops.mesh.select_all(
-        {"active_object": obj_copy, "selected_editable_objects": [obj_copy]},
-        action="SELECT",
-    )
-    bpy.ops.object.mode_set({"active_object": obj_copy}, mode="OBJECT")
-    to_join = [obj_target, obj_copy]
-    obj_target = join_meshes(to_join)
+    objs_selected = [obj for obj in context.selected_objects if obj.type == "MESH"]
 
     bpy.ops.object.select_all(action="DESELECT")
-    obj_target.select_set(True)
-    bpy.context.view_layer.objects.active = obj_target
-    bpy.ops.object.mode_set(mode="EDIT")
+
+    bpy.ops.view3d.pastebuffer(autoselect=True)
+    obj_copy = bpy.context.selected_objects[0]
+
+    if not obj_copy.type == "MESH":
+        delete_objects([obj_copy])
+    else:
+        join_meshes([obj_target, obj_copy])
+
+    for obj in objs_selected:
+        obj.select_set(True)
+    bpy.ops.object.mode_set(mode=current_mode)
 
 class BastiCopyToClipboard(bpy.types.Operator):
     """Tooltip"""
@@ -177,7 +154,7 @@ class BastiCopyToClipboard(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object is not None
+        return context.active_object is not None and context.active_object.type == 'MESH' and context.active_object.mode == 'EDIT'
 
     def execute(self, context):
         copy_to_clipboard(context, self.cut)
