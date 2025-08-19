@@ -1,5 +1,8 @@
 import bpy
 
+from .util_raycast import raycast
+from .util_material import create_new_material, get_material_of_polygon, apply_material_on_selected_faces
+
 class BastiApplyMaterial(bpy.types.Operator):
     """Tooltip"""
 
@@ -12,9 +15,6 @@ class BastiApplyMaterial(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        from util_raycast import raycast
-        from util_material import create_new_material, get_material_of_polygon, apply_material_on_selected_faces
-
         raycast_result, _, _, polygon_index, obj_target = raycast(context, self.coords)
 
         if not raycast_result:

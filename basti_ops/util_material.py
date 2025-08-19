@@ -1,5 +1,8 @@
 import bpy
 
+from .util_selection import get_all_selected_polygons
+
+
 def get_materials_on_objects(objs: list[bpy.types.Mesh]) -> list[bpy.types.Material]:
     """Returns a list of all materials linked to the object"""
     materials = []
@@ -36,8 +39,6 @@ def create_new_material():
 
 
 def apply_material_on_selected_faces(context, material):
-    from util_selection import get_all_selected_polygons
-
     obj_active = context.active_object
 
     objs_selected = [obj for obj in context.selected_objects if obj.type == "MESH"]

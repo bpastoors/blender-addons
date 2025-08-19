@@ -2,6 +2,10 @@ import bpy
 import bmesh
 from mathutils import Vector
 
+from .util_object import get_evaluated_obj_and_selection
+from .util_mesh import AllLinkedVerts
+from .util_raycast import raycast
+
 
 class BastiMoveToFace(bpy.types.Operator):
     """Tooltip"""
@@ -26,9 +30,6 @@ class BastiMoveToFace(bpy.types.Operator):
 
     def move_submeshes_to_point(self, objs: list[bpy.types.Mesh], location: Vector):
         """Move submeshes to the point and rotate them to the normal"""
-        from util_object import get_evaluated_obj_and_selection
-        from util_mesh import AllLinkedVerts
-
         obj_data = []
         average_location = Vector((0.0, 0.0, 0.0))
         vertex_count = 0
@@ -104,8 +105,6 @@ class BastiMoveToFace(bpy.types.Operator):
                 obj.rotation_euler = difference
 
     def move_to_face(self, context, coords, orient=False):
-        from util_raycast import raycast
-
         raycast_result, location, normal, _, obj_target = raycast(context, coords)
         if not raycast_result:
             return

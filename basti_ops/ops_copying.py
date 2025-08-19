@@ -1,11 +1,13 @@
 import bpy
 import bmesh
 
+from .util_object import get_evaluated_obj_and_selection, delete_objects
+from .util_mesh import join_meshes, get_all_other_verts
+from .util_raycast import raycast
+
+
 def copy_selected_into_new_obj(obj: bpy.types.Mesh, cut: bool) -> bpy.types.Mesh:
     """Copies or cuts selected faces of the mesh into a temporary mesh"""
-    from util_object import get_evaluated_obj_and_selection
-    from util_mesh import get_all_other_verts
-
     obj_source, verts_selected, polys_selected = get_evaluated_obj_and_selection(obj)
 
     vert_locations = [
@@ -53,9 +55,6 @@ class BastiCopyToMesh(bpy.types.Operator):
     cut: bpy.props.BoolProperty(default=False)
 
     def copy_cut_to_mesh(self, context, coords, cut=False):
-        from util_raycast import raycast
-        from util_mesh import join_meshes
-
         raycast_result, _, _, _, obj_target = raycast(context, coords)
 
         bpy.ops.object.mode_set(mode="OBJECT")
@@ -93,9 +92,6 @@ class BastiCopyToMesh(bpy.types.Operator):
         return self.execute(context)
 
 def copy_to_clipboard(context, cut=False):
-    from util_mesh import join_meshes
-    from util_object import delete_objects
-
     bpy.ops.object.mode_set(mode="OBJECT")
     objs_selected = [obj for obj in context.selected_objects if obj.type == "MESH"]
     objs_step = []
