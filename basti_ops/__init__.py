@@ -1,8 +1,3 @@
-import importlib
-
-from . import basti_ops
-
-
 bl_info = {
     "name": "basti_operators",
     "author": "Bastian",
@@ -14,17 +9,28 @@ bl_info = {
     "category": "Generic"
 }
 
+import importlib
+
+from . import basti_ops
+from . import utils
+
 modules = [
-    basti_ops
+    basti_ops,
+    utils
 ]
 
 
 def register():
     for m in modules:
         importlib.reload(m)
-        m.register()
+        if hasattr(m, 'register'):
+            m.register()
 
 
 def unregister():
     for m in reversed(modules):
-        m.unregister
+        if hasattr(m, 'register'):
+            m.unregister()
+
+if __name__ == "__main__":
+    register()

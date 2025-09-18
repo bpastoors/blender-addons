@@ -1,7 +1,7 @@
 import bpy
 
-from .util_raycast import raycast
-from .util_material import create_new_material, get_material_of_polygon, apply_material_on_selected_faces
+from .utils.raycast import raycast
+from .utils.material import create_new_material, get_material_of_polygon, apply_material_on_selected_faces
 
 class BastiApplyMaterial(bpy.types.Operator):
     """Tooltip"""

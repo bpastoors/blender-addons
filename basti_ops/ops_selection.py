@@ -1,6 +1,6 @@
 import bpy
 
-from .util_selection import set_mesh_selection_mode
+from .utils.selection import set_mesh_selection_mode
 
 
 class BastiSetSelectionMode(bpy.types.Operator):
@@ -13,14 +13,17 @@ class BastiSetSelectionMode(bpy.types.Operator):
             ("VERT", "VERT", "Vertex"),
             ("EDGE", "EDGE", "Edge"),
             ("FACE", "FACE", "Face"),
-            ("OBJECT", "OBJECT", "Object")
+            ("OBJECT", "OBJECT", "Object"),
+            ("SCULPT", "SCULPT", "Sculpt"),
         ],
         default="OBJECT")
 
     @classmethod
     def poll(cls, context):
-        return context.active_object is not None and context.active_object.type == 'MESH'
+        if context.active_object is None:
+            return False
+        return context.active_object.type == 'CURVE' or context.active_object.type == 'MESH'
 
     def execute(self, context):
-        set_mesh_selection_mode(self.selection_mode)
+        set_mesh_selection_mode(self.selection_mode, curve=context.active_object.type == 'CURVE')
         return {"FINISHED"}

@@ -1,6 +1,6 @@
 import bpy
 
-from .util_selection import get_all_selected_polygons, get_all_selected_vertices, add_vertices_from_polygons
+from .selection import get_all_selected_polygons, get_all_selected_vertices, add_vertices_from_polygons
 
 def delete_objects(objs: list[bpy.types.Object]):
     """Deletes a list of objects"""

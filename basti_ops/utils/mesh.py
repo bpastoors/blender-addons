@@ -46,17 +46,20 @@ def sort_verts_by_position(verts: list[bmesh.types.BMVert], sort_by: Literal["X"
     axis_mapping = {"X": 0, "Y": 1, "Z": 2}
     return sorted(verts, key=lambda vert: vert.co[axis_mapping[sort_by]], reverse=descending)
 
-def join_meshes(objs: list[bpy.types.Mesh]) -> bpy.types.Mesh:
+def join_meshes(objs: list[bpy.types.Object]) -> bpy.types.Object:
     """Joins a list of Objects into the first one"""
+    if len(objs) < 2:
+        return objs[0]
+    obj_target = objs[0]
     context_overrides = {
-        "object": objs[0],
-        "active_object": objs[0],
+        "object": obj_target,
+        "active_object": obj_target,
         "selected_objects": objs,
         "selected_editable_objects": objs
     }
     with bpy.context.temp_override(**context_overrides):
         bpy.ops.object.join()
-    return objs[0]
+    return obj_target
 
 
 

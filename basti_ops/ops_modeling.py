@@ -2,10 +2,36 @@ import bpy
 import bmesh
 from mathutils import Vector
 
-from .util_object import get_evaluated_obj_and_selection
-from .util_mesh import AllLinkedVerts
-from .util_raycast import raycast
+from .utils.selection import mesh_selection_mode, get_all_selected_vertices
+from .utils.object import get_evaluated_obj_and_selection
+from .utils.mesh import AllLinkedVerts
+from .utils.raycast import raycast
 
+
+class BastiBevel(bpy.types.Operator):
+    """Tooltip"""
+
+    bl_idname = "basti.bevel"
+    bl_label = "execute right bevel tool based on selection"
+    bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        return (
+                context.active_object is not None
+                and context.active_object.type == 'MESH'
+                and context.active_object.mode == 'EDIT'
+        )
+
+    def execute(self, context):
+        submesh_mode = mesh_selection_mode(context)
+        if submesh_mode == "VERT":
+            bpy.ops.mesh.bevel("INVOKE_DEFAULT", affect='VERTICES')
+        elif submesh_mode == "EDGE":
+            bpy.ops.mesh.bevel("INVOKE_DEFAULT",  affect='EDGES')
+        elif submesh_mode == "FACE":
+            bpy.ops.view3d.edit_mesh_extrude_move_normal()
+        return {"FINISHED"}
 
 class BastiMoveToFace(bpy.types.Operator):
     """Tooltip"""
@@ -118,3 +144,47 @@ class BastiMoveToFace(bpy.types.Operator):
             self.move_submeshes_to_point(objs_selected, Vector(location))
 
         bpy.context.view_layer.objects.active = obj_active
+
+class BastiMergeToActive(bpy.types.Operator):
+    """Tooltip"""
+
+    bl_idname = "basti.merge_to_active"
+    bl_label = "merges all selected vertices at the location of the active vertex"
+    bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        return (
+                context.active_object is not None
+                and context.active_object.type == 'MESH'
+                and context.active_object.mode == 'EDIT'
+                and mesh_selection_mode(context) == "VERT"
+        )
+
+    def execute(self, context):
+        active_object = context.active_object
+        bpy.ops.object.mode_set(mode="OBJECT")
+        bm = bmesh.new()
+        bm.from_mesh(active_object.data)
+        bm.verts.ensure_lookup_table()
+
+        target_vert = bm.select_history.active
+        if not target_vert:
+            bm.free()
+            bpy.ops.object.mode_set(mode="EDIT")
+            self.report({"INFO"}, "No active Vertex found to merge to")
+            return {"CANCELLED"}
+        target_location = target_vert.co.copy()
+        selected_verts = get_all_selected_vertices(active_object)
+
+        for i in [vert.index for vert in selected_verts]:
+            bm.verts[i].co = target_location
+
+        bm.to_mesh(active_object.data)
+        bm.free()
+        bpy.ops.object.mode_set(mode="EDIT")
+
+        bpy.ops.mesh.merge(type='CENTER')
+
+        return {"FINISHED"}
+

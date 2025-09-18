@@ -21,9 +21,17 @@ def mesh_selection_mode(context: bpy.types.Context) -> Union[None, str, tuple[st
 
     return None
 
-def set_mesh_selection_mode(selection_mode: str, selection_mask: Optional[tuple[bool]] = None):
+def set_mesh_selection_mode(selection_mode: str, selection_mask: Optional[tuple[bool]] = None, curve: Optional[bool] = False):
     if selection_mode == "OBJECT":
         bpy.ops.object.mode_set(mode="OBJECT")
+        return
+
+    if curve:
+        bpy.ops.object.mode_set(mode="EDIT")
+        return
+
+    if selection_mode == "SCULPT":
+        bpy.ops.object.mode_set(mode="SCULPT")
 
     if selection_mode == "MIXED":
         bpy.ops.object.mode_set(mode="EDIT")
@@ -62,7 +70,7 @@ def get_all_selected_vertices(obj: bpy.types.Mesh) -> list[bpy.types.MeshVertex]
     return [v for v in obj.data.vertices if v.select]
 
 def get_all_selected_polygons(
-    obj: bpy.types.Mesh, none_is_all: bool = False
+    obj: bpy.types.Object, none_is_all: bool = False
 ) -> list[bpy.types.MeshPolygon]:
     """Returns a list of selected polygons in the mesh"""
     selected_polys = [p for p in obj.data.polygons if p.select]
@@ -71,7 +79,7 @@ def get_all_selected_polygons(
     return selected_polys
 
 def add_vertices_from_polygons(
-    obj_source: bpy.types.Mesh,
+    obj_source: bpy.types.Object,
     verts_selected: list[bpy.types.MeshVertex],
     polys_selected: list[bpy.types.MeshPolygon],
 ) -> list[bpy.types.MeshVertex]:
@@ -82,5 +90,14 @@ def add_vertices_from_polygons(
                 if obj_source.data.vertices[v_id] not in verts_selected:
                     verts_selected.append(obj_source.data.vertices[v_id])
     return verts_selected
+
+def deselect_all(obj: bpy.types.Object):
+    """Deselects all elements in the mesh"""
+    for v in obj.data.vertices:
+        v.select = False
+    for p in obj.data.polygons:
+        p.select = False
+    for e in obj.data.edges:
+        e.select = False
 
 

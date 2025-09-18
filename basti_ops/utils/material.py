@@ -1,6 +1,6 @@
 import bpy
 
-from .util_selection import get_all_selected_polygons
+from .selection import get_all_selected_polygons
 
 
 def get_materials_on_objects(objs: list[bpy.types.Mesh]) -> list[bpy.types.Material]:
