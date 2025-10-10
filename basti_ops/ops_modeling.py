@@ -9,10 +9,10 @@ from .utils.raycast import raycast
 
 
 class BastiBevel(bpy.types.Operator):
-    """Tooltip"""
+    """execute right bevel tool based on selection"""
 
     bl_idname = "basti.bevel"
-    bl_label = "execute right bevel tool based on selection"
+    bl_label = "Bevel"
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod
@@ -34,10 +34,10 @@ class BastiBevel(bpy.types.Operator):
         return {"FINISHED"}
 
 class BastiMoveToFace(bpy.types.Operator):
-    """Tooltip"""
+    """move selected submesh or object to face under Cursor"""
 
     bl_idname = "basti.move_to_face"
-    bl_label = "move selected submesh or object to face under Cursor"
+    bl_label = "Move to Face"
     bl_options = {"REGISTER", "UNDO"}
 
     orient: bpy.props.BoolProperty(default=False)
@@ -146,10 +146,10 @@ class BastiMoveToFace(bpy.types.Operator):
         bpy.context.view_layer.objects.active = obj_active
 
 class BastiMergeToActive(bpy.types.Operator):
-    """Tooltip"""
+    """merges all selected vertices at the location of the active vertex"""
 
     bl_idname = "basti.merge_to_active"
-    bl_label = "merges all selected vertices at the location of the active vertex"
+    bl_label = "Merge to Active"
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod
