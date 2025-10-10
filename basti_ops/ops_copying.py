@@ -173,10 +173,10 @@ class BastiPasteFromClipboard(bpy.types.Operator):
         return {"FINISHED"}
 
 class BastiRadialArray(bpy.types.Operator):
-    """Tooltip"""
+    """Duplicate selected faces around the cursor"""
 
     bl_idname = "basti.radial_array"
-    bl_label = "Duplicate selected faces around the cursor"
+    bl_label = "Radial Array"
     bl_options = {"REGISTER", "UNDO"}
 
     pivot: bpy.props.EnumProperty(
