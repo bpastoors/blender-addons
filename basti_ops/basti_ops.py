@@ -2,8 +2,8 @@ import bpy
 
 from .ops_copying import BastiCopyToMesh, BastiCopyToClipboard, BastiPasteFromClipboard, BastiRadialArray
 from .ops_material import BastiApplyMaterial
-from .ops_modeling import BastiBevel, BastiMoveToFace, BastiMergeToActive
-from .ops_selection import BastiSetSelectionMode
+from .ops_modeling import BastiBevel, BastiMoveToFace, BastiMergeToActive, BastiScaleToZero, BastiMoveToZero
+from .ops_selection import BastiSetSelectionMode, BastiSelectEdgeOrIsland, BastiSelectLoop
 
 # class TraceSpriteToMesh(bpy.types.Operator):
 #     bl_idname = "basti.trace_sprite"
@@ -62,7 +62,11 @@ classes = [
     BastiSetSelectionMode,
     BastiBevel,
     BastiMergeToActive,
-    BastiRadialArray
+    BastiRadialArray,
+    BastiSelectEdgeOrIsland,
+    BastiSelectLoop,
+    BastiScaleToZero,
+    BastiMoveToZero
 ]
 
 

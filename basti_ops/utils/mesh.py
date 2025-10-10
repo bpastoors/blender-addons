@@ -61,5 +61,15 @@ def join_meshes(objs: list[bpy.types.Object]) -> bpy.types.Object:
         bpy.ops.object.join()
     return obj_target
 
+def average_vert_location(obj: bpy.types.Object, verts: list[bpy.types.MeshVertex]) -> tuple[float, float, float]:
+    """Return the average vert location"""
+    vert_locations = [obj.matrix_world @ v.co.copy() for v in verts]
+    x, y, z = (0.0, 0.0, 0.0)
+    for location in vert_locations:
+        x += location[0]
+        y += location[1]
+        z += location[2]
+    return x / len(verts), y / len(verts), z / len(verts)
+
 
 

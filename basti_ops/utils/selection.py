@@ -65,14 +65,27 @@ def get_continuous_edge_selection(
 
     return edges_connected, edges_selected
 
-def get_all_selected_vertices(obj: bpy.types.Mesh) -> list[bpy.types.MeshVertex]:
+def get_all_selected_vertices(obj: bpy.types.Mesh, none_is_all: bool = False) -> list[bpy.types.MeshVertex]:
     """Returns a list of selected vertices in the mesh"""
-    return [v for v in obj.data.vertices if v.select]
+    obj.update_from_editmode()
+    selected_vertices = [v for v in obj.data.vertices if v.select]
+    if none_is_all and len(selected_vertices) == 0:
+        selected_vertices = obj.data.vertices
+    return selected_vertices
+
+def get_all_selected_edges(obj: bpy.types.Mesh, none_is_all: bool = False) -> list[bpy.types.MeshEdge]:
+    """Returns a list of selected edges in the mesh"""
+    obj.update_from_editmode()
+    selected_edges = [e for e in obj.data.edges if e.select]
+    if none_is_all and len(selected_edges) == 0:
+        selected_edges = obj.data.edges
+    return selected_edges
 
 def get_all_selected_polygons(
     obj: bpy.types.Object, none_is_all: bool = False
 ) -> list[bpy.types.MeshPolygon]:
     """Returns a list of selected polygons in the mesh"""
+    obj.update_from_editmode()
     selected_polys = [p for p in obj.data.polygons if p.select]
     if none_is_all and len(selected_polys) == 0:
         selected_polys = obj.data.polygons
@@ -91,13 +104,34 @@ def add_vertices_from_polygons(
                     verts_selected.append(obj_source.data.vertices[v_id])
     return verts_selected
 
+def select_by_id(obj: bpy.types.Object, selection_mode: str, indices: list[int], deselect: bool = False):
+    """Selects elements by type and index in the mesh"""
+    set_mesh_selection_mode(selection_mode, curve=False)
+    if deselect:
+        bpy.ops.mesh.select_all(action="DESELECT")
+    bm = bmesh.from_edit_mesh(obj.data)
+
+    element_group = None
+    if selection_mode == "VERT":
+        element_group = bm.verts
+    if selection_mode == "EDGE":
+        element_group = bm.edges
+    if selection_mode == "FACE":
+        element_group = bm.faces
+
+    if not element_group:
+        raise RuntimeError("No element selected")
+
+    element_group.ensure_lookup_table()
+
+    for i in indices:
+        element_group[i].select_set(True)
+    bmesh.update_edit_mesh(obj.data)
+    bm.free()
+
 def deselect_all(obj: bpy.types.Object):
     """Deselects all elements in the mesh"""
-    for v in obj.data.vertices:
-        v.select = False
-    for p in obj.data.polygons:
-        p.select = False
-    for e in obj.data.edges:
-        e.select = False
+
+
 
 

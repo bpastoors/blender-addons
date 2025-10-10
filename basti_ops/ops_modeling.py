@@ -3,8 +3,7 @@ import bmesh
 from mathutils import Vector
 
 from .utils.selection import mesh_selection_mode, get_all_selected_vertices
-from .utils.object import get_evaluated_obj_and_selection
-from .utils.mesh import AllLinkedVerts
+from .utils.mesh import AllLinkedVerts, average_vert_location
 from .utils.raycast import raycast
 
 
@@ -61,50 +60,40 @@ class BastiMoveToFace(bpy.types.Operator):
         vertex_count = 0
 
         for obj in objs:
-            bpy.context.view_layer.objects.active = obj
-            bpy.ops.object.mode_set(mode="OBJECT")
-
-            obj_source, verts_selected, polys_selected = get_evaluated_obj_and_selection(obj)
+            verts_selected = get_all_selected_vertices(obj)
 
             if len(objs) == 1 and len(verts_selected) == 0:
-                verts_selected = [obj_source.data.vertices[-1]]
+                verts_selected = [obj.data.vertices[-1]]
 
-            bm = bmesh.new()
-            bm.from_mesh(obj_source.data)
+            bm = bmesh.from_edit_mesh(obj.data)
             bm.verts.ensure_lookup_table()
             bm_verts_selected = AllLinkedVerts(
                 [bm.verts[v.index] for v in verts_selected]
             ).execute()
 
-            for v in bm_verts_selected:
-                average_location += bpy.context.object.matrix_world @ v.co.copy()
-            vertex_count += len(bm_verts_selected)
+            average_location += Vector(average_vert_location(obj, bm_verts_selected))
 
-            obj_data_entry = {}
-            obj_data_entry["object"] = obj
-            obj_data_entry["selectionIndexes"] = [v.index for v in bm_verts_selected]
-            obj_data_entry["bmesh"] = bm.copy()
-            obj_data.append(obj_data_entry)
-
+            obj_data.append({
+                "object": obj,
+                "selection_indexes": [v.index for v in bm_verts_selected],
+            })
             bm.free()
 
-        average_location /= vertex_count
+        average_location /= len(objs)
         move_offset = average_location - location
 
         for obj_data_entry in obj_data:
-            bpy.context.view_layer.objects.active = obj_data_entry["object"]
-            bpy.ops.object.mode_set(mode="OBJECT")
-
-            bm = obj_data_entry["bmesh"]
+            obj = obj_data_entry["object"]
+            bm = bmesh.from_edit_mesh(obj.data)
             bm.verts.ensure_lookup_table()
-            verts = [bm.verts[i] for i in obj_data_entry["selectionIndexes"]]
+            for i in obj_data_entry["selection_indexes"]:
+                location = obj.matrix_world @ bm.verts[i].co.copy()
+                location -= move_offset
+                bm.verts[i].co = obj.matrix_world.inverted() @ location
 
-            for v in verts:
-                v.co -= move_offset
-
-            bm.to_mesh(obj_data_entry["object"].data)
+            bmesh.update_edit_mesh(obj.data)
             bm.free()
-            bpy.ops.object.mode_set(mode="EDIT")
+        bpy.ops.object.mode_set(mode="EDIT")
 
     def move_objects_to_point(
             self,
@@ -115,13 +104,11 @@ class BastiMoveToFace(bpy.types.Operator):
     ):
         """Move and orient meshes to the point and rotate them to the normal"""
         average_location = Vector((0.0, 0.0, 0.0))
-        object_count = 0
 
         for obj in objs:
             average_location += obj.location
-            object_count += 1
 
-        average_location /= object_count
+        average_location /= len(objs)
         move_offset = average_location - location
 
         for obj in objs:
@@ -186,5 +173,68 @@ class BastiMergeToActive(bpy.types.Operator):
 
         bpy.ops.mesh.merge(type='CENTER')
 
+        return {"FINISHED"}
+
+class BastiScaleToZero(bpy.types.Operator):
+    """Tooltip"""
+
+    bl_idname = "basti.scale_to_zero"
+    bl_label = "Scale to Zero"
+    bl_options = {"REGISTER", "UNDO"}
+
+    axis: bpy.props.EnumProperty(
+        items=[
+            ("X", "X", "X"),
+            ("Y", "Y", "Y"),
+            ("Z", "Z", "Z"),
+        ],
+        default="X")
+
+    @classmethod
+    def poll(cls, context):
+        return (
+                context.active_object is not None
+                and context.active_object.type == 'MESH'
+                and context.active_object.mode == 'EDIT'
+        )
+
+    def execute(self, context):
+        value = (
+            0.0 if self.axis == "X" else 1.0,
+            0.0 if self.axis == "Y" else 1.0,
+            0.0 if self.axis == "Z" else 1.0
+        )
+        bpy.ops.transform.resize(value=value)
+        return {"FINISHED"}
+
+class BastiMoveToZero(bpy.types.Operator):
+    """Tooltip"""
+
+    bl_idname = "basti.move_to_zero"
+    bl_label = "Move to Zero"
+    bl_options = {"REGISTER", "UNDO"}
+
+    x: bpy.props.BoolProperty(name="X", default=True)
+    y: bpy.props.BoolProperty(name="Y", default=True)
+    z: bpy.props.BoolProperty(name="Z", default=True)
+
+    @classmethod
+    def poll(cls, context):
+        return (
+                context.active_object is not None
+                and context.active_object.type == 'MESH'
+                and context.active_object.mode == 'EDIT'
+        )
+
+    def execute(self, context):
+        obj = context.active_object
+        verts_selected = get_all_selected_vertices(obj)
+        center = average_vert_location(obj, verts_selected)
+        value = (
+            center[0] * -1.0 if self.x else 0.0,
+            center[1] * -1.0 if self.y else 0.0,
+            center[2] * -1.0 if self.z else 0.0
+        )
+        bpy.ops.transform.translate(value=value, orient_type="GLOBAL")
         return {"FINISHED"}
 
