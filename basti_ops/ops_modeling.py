@@ -234,12 +234,10 @@ class BastiMoveToZero(bpy.types.Operator):
             )
             bpy.ops.transform.translate(value=value, orient_type="GLOBAL")
         else:
-            new_location = obj.location
-            new_location = (
-                0.0 if self.x else new_location[0],
-                0.0 if self.y else new_location[1],
-                0.0 if self.z else new_location[2],
+            obj.location = (
+                0.0 if self.x else obj.location[0],
+                0.0 if self.y else obj.location[1],
+                0.0 if self.z else obj.location[2],
             )
-            obj.location = new_location
         return {"FINISHED"}
 
