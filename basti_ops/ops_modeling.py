@@ -220,21 +220,26 @@ class BastiMoveToZero(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return (
-                context.active_object is not None
-                and context.active_object.type == 'MESH'
-                and context.active_object.mode == 'EDIT'
-        )
+        return context.active_object is not None
 
     def execute(self, context):
         obj = context.active_object
-        verts_selected = get_all_selected_vertices(obj)
-        center = average_vert_location(obj, verts_selected)
-        value = (
-            center[0] * -1.0 if self.x else 0.0,
-            center[1] * -1.0 if self.y else 0.0,
-            center[2] * -1.0 if self.z else 0.0
-        )
-        bpy.ops.transform.translate(value=value, orient_type="GLOBAL")
+        if context.active_object.type == 'MESH' and context.active_object.mode == 'EDIT':
+            verts_selected = get_all_selected_vertices(obj)
+            center = average_vert_location(obj, verts_selected)
+            value = (
+                center[0] * -1.0 if self.x else 0.0,
+                center[1] * -1.0 if self.y else 0.0,
+                center[2] * -1.0 if self.z else 0.0
+            )
+            bpy.ops.transform.translate(value=value, orient_type="GLOBAL")
+        else:
+            new_location = obj.location
+            new_location = (
+                0.0 if self.x else new_location[0],
+                0.0 if self.y else new_location[1],
+                0.0 if self.z else new_location[2],
+            )
+            obj.location = new_location
         return {"FINISHED"}
 
