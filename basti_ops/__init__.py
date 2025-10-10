@@ -12,11 +12,13 @@ bl_info = {
 import importlib
 
 from . import basti_ops
+from . import basti_menus
 from . import utils
 
 modules = [
+    utils,
     basti_ops,
-    utils
+    basti_menus,
 ]
 
 
