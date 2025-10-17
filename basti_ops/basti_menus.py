@@ -37,6 +37,28 @@ class VIEW3D_MT_BastiDuplicate(bpy.types.Menu):
         layout = self.layout
         pie = layout.menu_pie()
         pie.operator("basti.radial_array")
+        op = pie.operator("wm.call_menu", text="Quick Mirror")
+        op.name = "VIEW3D_MT_BastiQuickMirror"
+
+
+class VIEW3D_MT_BastiQuickMirror(bpy.types.Menu):
+    bl_label = "Quick Mirror"
+
+    def draw(self, context):
+        layout = self.layout
+        col = layout.column()
+        op = col.operator("basti.quick_mirror", text="X")
+        op.axis = "X"
+        op.delete_target = "LINKED"
+        op.auto_merge = True
+        op = col.operator("basti.quick_mirror", text="Y")
+        op.axis = "Y"
+        op.delete_target = "LINKED"
+        op.auto_merge = True
+        op = col.operator("basti.quick_mirror", text="Z")
+        op.axis = "Z"
+        op.delete_target = "LINKED"
+        op.auto_merge = True
 
 
 class VIEW3D_MT_BastiScaleToZero(bpy.types.Menu):
@@ -124,6 +146,7 @@ classes = [
     VIEW3D_MT_BastiMoveToZero,
     VIEW3D_MT_BastiModeling,
     VIEW3D_MT_Basti3dView,
+    VIEW3D_MT_BastiQuickMirror,
 ]
 
 

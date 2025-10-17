@@ -1,13 +1,12 @@
 import bpy
 import bmesh
-from mathutils import Vector
 
-from ..utils.mesh import duplicate_bmesh_geometry
+from ..utils.mesh import duplicate_bmesh_geometry, AllLinkedVerts
 from ..utils.selection import (
     select_by_id,
     mesh_selection_mode,
     set_mesh_selection_mode,
-    get_bmesh_islands_verts_from_selection,
+    get_all_selected_vertices,
 )
 
 
@@ -19,12 +18,22 @@ class BastiQuickMirror(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     axis: bpy.props.EnumProperty(
+        name="Axis",
         items=[
             ("X", "X", "X"),
             ("Y", "Y", "Y"),
             ("Z", "Z", "Z"),
         ],
         default="X",
+    )
+    delete_target: bpy.props.EnumProperty(
+        name="Delete Target Side",
+        items=[
+            ("NO", "No", "No"),
+            ("LINKED", "Linked", "Linked"),
+            ("ALL", "All", "All"),
+        ],
+        default="LINKED",
     )
     auto_merge: bpy.props.BoolProperty(
         name="Automatic Merge",
@@ -44,25 +53,41 @@ class BastiQuickMirror(bpy.types.Operator):
         )
 
     def execute(self, context):
+        axis_int = 0
+        if self.axis != "X":
+            axis_int += 1 if self.axis == "Y" else 2
+
         selection_mode = mesh_selection_mode(context)
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         bm.verts.ensure_lookup_table()
 
+        bm_verts_selected = [bm.verts[v.index] for v in get_all_selected_vertices(obj)]
+        average_location = sum([v.co[axis_int] for v in bm_verts_selected]) / len(
+            bm_verts_selected
+        )
+        if self.delete_target != "NO":
+            deletion_side = -1 if average_location > 0 else 1
+            verts_to_check = (
+                AllLinkedVerts(bm_verts_selected).execute()
+                if self.delete_target == "LINKED"
+                else bm.verts
+            )
+            verts_to_delete = [
+                v for v in verts_to_check if v.co[axis_int] * deletion_side > 0
+            ]
+            for vert in verts_to_delete:
+                if vert in bm_verts_selected:
+                    bm_verts_selected.remove(vert)
+            bmesh.ops.delete(bm, geom=verts_to_delete)
+
         bm_verts_duplicated = duplicate_bmesh_geometry(
             bm,
-            get_bmesh_islands_verts_from_selection(obj, bm),
+            AllLinkedVerts(bm_verts_selected).execute(),
         )
 
-        value = Vector(
-            (
-                -1.0 if self.axis == "X" else 1.0,
-                -1.0 if self.axis == "Y" else 1.0,
-                -1.0 if self.axis == "Z" else 1.0,
-            )
-        )
         for vert in bm_verts_duplicated:
-            vert.co *= value
+            vert.co[axis_int] *= -1.0
 
         bmesh.update_edit_mesh(obj.data)
         bm.free()
