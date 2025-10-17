@@ -3,6 +3,7 @@ from typing import Optional, Literal, Union
 import bpy
 import bmesh
 
+
 EditMeshSelectionModes: list[Literal["VERT", "EDGE", "FACE"]] = ["VERT", "EDGE", "FACE"]
 
 
@@ -124,6 +125,16 @@ def add_vertices_from_polygons(
                 if obj_source.data.vertices[v_id] not in verts_selected:
                     verts_selected.append(obj_source.data.vertices[v_id])
     return verts_selected
+
+
+def get_bmesh_islands_verts_from_selection(
+    obj: bpy.types.Object, bm: bmesh.types.BMesh
+) -> list[bmesh.types.BMVert]:
+    from .mesh import AllLinkedVerts
+
+    return AllLinkedVerts(
+        [bm.verts[v.index] for v in get_all_selected_vertices(obj)]
+    ).execute()
 
 
 def select_by_id(

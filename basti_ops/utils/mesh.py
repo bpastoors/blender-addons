@@ -135,3 +135,16 @@ def copy_selected_into_new_obj(obj: bpy.types.Mesh, cut: bool) -> bpy.types.Mesh
 
     obj_target.data = obj_target_data
     return obj_target
+
+
+def duplicate_bmesh_geometry(
+    bm: bmesh.types.BMesh, verts: list[bmesh.types.BMVert]
+) -> list[bmesh.types.BMVert]:
+    geom = []
+    geom.extend(verts.copy())
+    geom.extend({edge for v in verts for edge in v.link_edges})
+    geom.extend({face for v in verts for face in v.link_faces})
+
+    duplication_result = bmesh.ops.duplicate(bm, geom=geom)
+    bm.verts.ensure_lookup_table()
+    return [g for g in duplication_result["geom"] if isinstance(g, bmesh.types.BMVert)]
