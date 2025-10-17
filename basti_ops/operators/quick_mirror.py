@@ -26,6 +26,24 @@ class BastiQuickMirror(bpy.types.Operator):
         ],
         default="X",
     )
+    pivot: bpy.props.EnumProperty(
+        name="Pivot",
+        items=[
+            ("ORIGIN", "Origin", "World Origin"),
+            ("PIVOT", "Pivot", "Object Pivot"),
+            ("CURSOR", "Cursor", "3d Cursor"),
+        ],
+        default="ORIGIN",
+    )
+    scope: bpy.props.EnumProperty(
+        name="Scope",
+        items=[
+            ("SELECTED", "Selected", "Selected"),
+            ("LINKED", "Linked", "Linked"),
+            ("ALL", "All", "All"),
+        ],
+        default="LINKED",
+    )
     delete_target: bpy.props.EnumProperty(
         name="Delete Target Side",
         items=[
@@ -57,37 +75,58 @@ class BastiQuickMirror(bpy.types.Operator):
         if self.axis != "X":
             axis_int += 1 if self.axis == "Y" else 2
 
+        def get_offset_coords(vert: bmesh.types.BMVert):
+            coords = vert.co.copy()
+            if self.pivot == "PIVOT":
+                return coords
+            coords = obj.matrix_world @ coords
+            if self.pivot == "CURSOR":
+                coords[axis_int] -= context.scene.cursor.location[axis_int]
+            return coords
+
         selection_mode = mesh_selection_mode(context)
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         bm.verts.ensure_lookup_table()
 
         bm_verts_selected = [bm.verts[v.index] for v in get_all_selected_vertices(obj)]
-        average_location = sum([v.co[axis_int] for v in bm_verts_selected]) / len(
-            bm_verts_selected
-        )
+        average_location = sum(
+            [get_offset_coords(v)[axis_int] for v in bm_verts_selected]
+        ) / len(bm_verts_selected)
         if self.delete_target != "NO":
             deletion_side = -1 if average_location > 0 else 1
             verts_to_check = (
-                AllLinkedVerts(bm_verts_selected).execute()
+                AllLinkedVerts(bm_verts_selected.copy()).execute()
                 if self.delete_target == "LINKED"
                 else bm.verts
             )
             verts_to_delete = [
-                v for v in verts_to_check if v.co[axis_int] * deletion_side > 0
+                v
+                for v in verts_to_check
+                if get_offset_coords(v)[axis_int] * deletion_side > 0
             ]
             for vert in verts_to_delete:
                 if vert in bm_verts_selected:
                     bm_verts_selected.remove(vert)
             bmesh.ops.delete(bm, geom=verts_to_delete)
 
-        bm_verts_duplicated = duplicate_bmesh_geometry(
-            bm,
-            AllLinkedVerts(bm_verts_selected).execute(),
+        bm_verts_to_duplicate = (
+            AllLinkedVerts(bm_verts_selected).execute()
+            if self.scope == "LINKED"
+            else bm_verts_selected if self.scope == "SELECTED" else list(bm.verts)
         )
+        bm_verts_duplicated = duplicate_bmesh_geometry(bm, bm_verts_to_duplicate, True)
 
         for vert in bm_verts_duplicated:
-            vert.co[axis_int] *= -1.0
+            coords = get_offset_coords(vert)
+
+            coords[axis_int] *= -1.0
+
+            if self.pivot in ["ORIGIN", "CURSOR"]:
+                if self.pivot == "CURSOR":
+                    coords[axis_int] += context.scene.cursor.location[axis_int]
+                coords = obj.matrix_world.inverted() @ coords
+            vert.co = coords
 
         bmesh.update_edit_mesh(obj.data)
         bm.free()

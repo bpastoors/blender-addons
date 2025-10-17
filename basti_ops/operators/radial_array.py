@@ -14,6 +14,7 @@ class BastiRadialArray(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     pivot: bpy.props.EnumProperty(
+        name="Pivot",
         items=[
             ("ORIGIN", "Origin", "World Origin"),
             ("PIVOT", "Pivot", "Object Pivot"),
@@ -22,6 +23,7 @@ class BastiRadialArray(bpy.types.Operator):
         default="ORIGIN",
     )
     axis: bpy.props.EnumProperty(
+        name="Axis",
         items=[
             ("X", "X", "X"),
             ("Y", "Y", "Y"),

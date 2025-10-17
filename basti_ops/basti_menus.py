@@ -49,14 +49,20 @@ class VIEW3D_MT_BastiQuickMirror(bpy.types.Menu):
         col = layout.column()
         op = col.operator("basti.quick_mirror", text="X")
         op.axis = "X"
+        op.pivot = "ORIGIN"
+        op.scope = "LINKED"
         op.delete_target = "LINKED"
         op.auto_merge = True
         op = col.operator("basti.quick_mirror", text="Y")
         op.axis = "Y"
+        op.pivot = "ORIGIN"
+        op.scope = "LINKED"
         op.delete_target = "LINKED"
         op.auto_merge = True
         op = col.operator("basti.quick_mirror", text="Z")
         op.axis = "Z"
+        op.pivot = "ORIGIN"
+        op.scope = "LINKED"
         op.delete_target = "LINKED"
         op.auto_merge = True
 
