@@ -1,10 +1,16 @@
 import bpy
 
-from ..utils.selection import mesh_selection_mode, select_shared_edges_from_polygons, get_all_selected_edges, select_by_id
+from ..utils.selection import (
+    mesh_selection_mode,
+    select_shared_edges_from_polygons,
+    get_all_selected_edges,
+    select_by_id,
+)
 
 
 class BastiLoopSlice(bpy.types.Operator):
     """Tooltip"""
+
     bl_idname = "basti.loop_slice"
     bl_label = "Loop Slice"
     bl_options = {"REGISTER", "UNDO"}
@@ -14,7 +20,7 @@ class BastiLoopSlice(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        if not context.active_object or context.active_object.type != 'MESH':
+        if not context.active_object or context.active_object.type != "MESH":
             return False
         selection_mode = mesh_selection_mode(context)
         return selection_mode in ["EDGE", "FACE"]

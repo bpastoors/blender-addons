@@ -48,10 +48,12 @@ class BastiMoveToFace(bpy.types.Operator):
 
             average_location += Vector(average_vert_location(obj, bm_verts_selected))
 
-            obj_data.append({
-                "object": obj,
-                "selection_indexes": [v.index for v in bm_verts_selected],
-            })
+            obj_data.append(
+                {
+                    "object": obj,
+                    "selection_indexes": [v.index for v in bm_verts_selected],
+                }
+            )
             bm.free()
 
         average_location /= len(objs)
@@ -71,11 +73,11 @@ class BastiMoveToFace(bpy.types.Operator):
         bpy.ops.object.mode_set(mode="EDIT")
 
     def move_objects_to_point(
-            self,
-            objs: list[bpy.types.Object],
-            location: Vector,
-            orient: bool = False,
-            normal: Vector = Vector((0.0, 0.0, 0.0)),
+        self,
+        objs: list[bpy.types.Object],
+        location: Vector,
+        orient: bool = False,
+        normal: Vector = Vector((0.0, 0.0, 0.0)),
     ):
         """Move and orient meshes to the point and rotate them to the normal"""
         average_location = Vector((0.0, 0.0, 0.0))
@@ -89,7 +91,9 @@ class BastiMoveToFace(bpy.types.Operator):
         for obj in objs:
             obj.location -= move_offset
             if orient:
-                difference = Vector((0.0, 0.0, 1.0)).rotation_difference(normal).to_euler()
+                difference = (
+                    Vector((0.0, 0.0, 1.0)).rotation_difference(normal).to_euler()
+                )
                 obj.rotation_euler = difference
 
     def move_to_face(self, context, coords, orient=False):

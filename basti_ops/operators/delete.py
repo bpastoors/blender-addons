@@ -5,6 +5,7 @@ from ..utils.selection import mesh_selection_mode
 
 class BastiDelete(bpy.types.Operator):
     """Tooltip"""
+
     bl_idname = "basti.delete"
     bl_label = "Delete"
     bl_options = {"REGISTER", "UNDO"}
@@ -14,9 +15,9 @@ class BastiDelete(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         return (
-                context.active_object is not None
-                and context.active_object.type == 'MESH'
-                and context.active_object.mode == 'EDIT'
+            context.active_object is not None
+            and context.active_object.type == "MESH"
+            and context.active_object.mode == "EDIT"
         )
 
     def execute(self, context):

@@ -1,5 +1,6 @@
 import bpy
 
+
 class VIEW3D_MT_BastiCreateAndCenter(bpy.types.Menu):
     bl_label = "Create and Center"
 
@@ -8,25 +9,26 @@ class VIEW3D_MT_BastiCreateAndCenter(bpy.types.Menu):
         layout = self.layout
         pie = layout.menu_pie()
 
-        #left
+        # left
         pie.operator("mesh.primitive_plane_add", text="Draw Polygon")
-        #right
+        # right
         pie.operator("mesh.primitive_uv_sphere_add")
-        #down
+        # down
         op = pie.operator("wm.call_menu", text="Center on Axis")
         op.name = "VIEW3D_MT_BastiMoveToZero"
-        #up
+        # up
         pie.operator("mesh.primitive_cube_add")
-        #up-left
+        # up-left
         pie.operator("mesh.primitive_plane_add")
-        #up-right
+        # up-right
         pie.operator("mesh.primitive_cylinder_add")
-        #down-left
+        # down-left
         op = pie.operator("wm.call_menu", text="Scale to Zero")
         op.name = "VIEW3D_MT_BastiScaleToZero"
-        #down-right
+        # down-right
         op = pie.operator("wm.call_menu_pie", text="Duplicate")
         op.name = "VIEW3D_MT_BastiDuplicate"
+
 
 class VIEW3D_MT_BastiDuplicate(bpy.types.Menu):
     bl_label = "Duplicate"
@@ -35,6 +37,7 @@ class VIEW3D_MT_BastiDuplicate(bpy.types.Menu):
         layout = self.layout
         pie = layout.menu_pie()
         pie.operator("basti.radial_array")
+
 
 class VIEW3D_MT_BastiScaleToZero(bpy.types.Menu):
     bl_label = "Scale to Zero"
@@ -48,6 +51,7 @@ class VIEW3D_MT_BastiScaleToZero(bpy.types.Menu):
         op.axis = "Y"
         op = col.operator("basti.scale_to_zero", text="Z")
         op.axis = "Z"
+
 
 class VIEW3D_MT_BastiMoveToZero(bpy.types.Menu):
     bl_label = "Scale to Zero"
@@ -70,6 +74,7 @@ class VIEW3D_MT_BastiMoveToZero(bpy.types.Menu):
         op = col.operator("basti.move_to_zero", text="YZ")
         op.x, op.y, op.z = False, True, True
 
+
 class VIEW3D_MT_BastiModeling(bpy.types.Menu):
     bl_label = "Modeling"
 
@@ -79,6 +84,7 @@ class VIEW3D_MT_BastiModeling(bpy.types.Menu):
         pie.operator("transform.shrink_fatten", text="Push")
         pie.operator("mesh.solidify", text="Thicken")
 
+
 class VIEW3D_MT_Basti3dView(bpy.types.Menu):
     bl_label = "3d Viewpoint"
 
@@ -86,29 +92,30 @@ class VIEW3D_MT_Basti3dView(bpy.types.Menu):
         layout = self.layout
         pie = layout.menu_pie()
 
-        #left
+        # left
         op = pie.operator("basti.set_viewpoint", text="Left")
         op.viewpoint = "LEFT"
-        #right
+        # right
         op = pie.operator("basti.set_viewpoint", text="Right")
         op.viewpoint = "RIGHT"
-        #down
+        # down
         op = pie.operator("basti.set_viewpoint", text="Bottom")
         op.viewpoint = "BOTTOM"
-        #up
+        # up
         op = pie.operator("basti.set_viewpoint", text="Top")
         op.viewpoint = "TOP"
-        #up-left
+        # up-left
         pie.operator("view3d.view_camera", text="Camera")
-        #up-right
+        # up-right
         op = pie.operator("basti.set_viewpoint", text="Perspective")
         op.viewpoint = "PERSPECTIVE"
-        #down-left
+        # down-left
         op = pie.operator("basti.set_viewpoint", text="Back")
         op.viewpoint = "BACK"
-        #down-right
+        # down-right
         op = pie.operator("basti.set_viewpoint", text="Front")
         op.viewpoint = "FRONT"
+
 
 classes = [
     VIEW3D_MT_BastiCreateAndCenter,
@@ -116,13 +123,14 @@ classes = [
     VIEW3D_MT_BastiScaleToZero,
     VIEW3D_MT_BastiMoveToZero,
     VIEW3D_MT_BastiModeling,
-    VIEW3D_MT_Basti3dView
+    VIEW3D_MT_Basti3dView,
 ]
 
 
 def register():
     for c in classes:
         bpy.utils.register_class(c)
+
 
 def unregister():
     for c in classes:

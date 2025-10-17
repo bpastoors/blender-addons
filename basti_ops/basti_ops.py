@@ -34,13 +34,14 @@ classes = [
     BastiMoveToZero,
     BastiDelete,
     BastiSetViewpoint,
-    BastiLoopSlice
+    BastiLoopSlice,
 ]
 
 
 def register():
     for c in classes:
         bpy.utils.register_class(c)
+
 
 def unregister():
     for c in classes:

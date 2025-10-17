@@ -12,7 +12,10 @@ class BastiSelectEdgeOrIsland(bpy.types.Operator):
     def poll(cls, context):
         if context.active_object is None:
             return False
-        return context.active_object.type == 'MESH' and context.active_object.mode == 'EDIT'
+        return (
+            context.active_object.type == "MESH"
+            and context.active_object.mode == "EDIT"
+        )
 
     def execute(self, context):
         selection_mode = mesh_selection_mode(context)

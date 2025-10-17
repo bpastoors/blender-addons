@@ -5,6 +5,7 @@ import bpy
 from ..utils.selection import mesh_selection_mode
 from ..utils.mesh import join_meshes, copy_selected_into_new_obj
 
+
 class BastiRadialArray(bpy.types.Operator):
     """Duplicate selected faces around the cursor"""
 
@@ -18,27 +19,30 @@ class BastiRadialArray(bpy.types.Operator):
             ("PIVOT", "Pivot", "Object Pivot"),
             ("CURSOR", "Cursor", "3d Cursor"),
         ],
-        default="ORIGIN")
+        default="ORIGIN",
+    )
     axis: bpy.props.EnumProperty(
         items=[
             ("X", "X", "X"),
             ("Y", "Y", "Y"),
             ("Z", "Z", "Z"),
         ],
-        default="Z")
+        default="Z",
+    )
     count: bpy.props.IntProperty(default=4)
 
     @classmethod
     def poll(cls, context):
         return (
-                context.active_object is not None
-                and context.active_object.type == 'MESH'
-                and context.active_object.mode == 'EDIT'
-                and mesh_selection_mode(context) == "FACE"
+            context.active_object is not None
+            and context.active_object.type == "MESH"
+            and context.active_object.mode == "EDIT"
+            and mesh_selection_mode(context) == "FACE"
         )
 
     def execute(self, context):
         from mathutils import Matrix, Vector
+
         active_object = context.active_object
         rotation_pivot = Vector()
         if self.pivot == "PIVOT":
@@ -64,4 +68,3 @@ class BastiRadialArray(bpy.types.Operator):
         bpy.ops.object.mode_set(mode="EDIT")
 
         return {"FINISHED"}
-

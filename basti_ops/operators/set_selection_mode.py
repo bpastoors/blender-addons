@@ -16,14 +16,20 @@ class BastiSetSelectionMode(bpy.types.Operator):
             ("OBJECT", "OBJECT", "Object"),
             ("SCULPT", "SCULPT", "Sculpt"),
         ],
-        default="OBJECT")
+        default="OBJECT",
+    )
 
     @classmethod
     def poll(cls, context):
         if context.active_object is None:
             return False
-        return context.active_object.type == 'CURVE' or context.active_object.type == 'MESH'
+        return (
+            context.active_object.type == "CURVE"
+            or context.active_object.type == "MESH"
+        )
 
     def execute(self, context):
-        set_mesh_selection_mode(self.selection_mode, curve=context.active_object.type == 'CURVE')
+        set_mesh_selection_mode(
+            self.selection_mode, curve=context.active_object.type == "CURVE"
+        )
         return {"FINISHED"}

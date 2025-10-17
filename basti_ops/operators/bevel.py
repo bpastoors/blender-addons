@@ -13,17 +13,17 @@ class BastiBevel(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         return (
-                context.active_object is not None
-                and context.active_object.type == 'MESH'
-                and context.active_object.mode == 'EDIT'
+            context.active_object is not None
+            and context.active_object.type == "MESH"
+            and context.active_object.mode == "EDIT"
         )
 
     def execute(self, context):
         submesh_mode = mesh_selection_mode(context)
         if submesh_mode == "VERT":
-            bpy.ops.mesh.bevel("INVOKE_DEFAULT", affect='VERTICES')
+            bpy.ops.mesh.bevel("INVOKE_DEFAULT", affect="VERTICES")
         elif submesh_mode == "EDGE":
-            bpy.ops.mesh.bevel("INVOKE_DEFAULT",  affect='EDGES')
+            bpy.ops.mesh.bevel("INVOKE_DEFAULT", affect="EDGES")
         elif submesh_mode == "FACE":
             bpy.ops.view3d.edit_mesh_extrude_move_normal()
         return {"FINISHED"}

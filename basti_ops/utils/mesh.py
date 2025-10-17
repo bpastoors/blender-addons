@@ -3,7 +3,11 @@ from typing import Literal
 import bpy
 import bmesh
 
-from .selection import get_all_selected_vertices, get_all_selected_polygons, add_vertices_from_polygons
+from .selection import (
+    get_all_selected_vertices,
+    get_all_selected_polygons,
+    add_vertices_from_polygons,
+)
 
 
 class AllLinkedVerts:
@@ -38,15 +42,24 @@ class AllLinkedVerts:
             for v in new_verts:
                 self.recursive_search(v)
 
+
 def get_all_other_verts(
-        bm: bmesh.types.BMesh, verts: list[bmesh.types.BMVert]
+    bm: bmesh.types.BMesh, verts: list[bmesh.types.BMVert]
 ) -> list[bmesh.types.BMVert]:
     """Returns a list of all BMVerts in the mesh, but not in the list"""
     return [v for v in bm.verts if v not in verts]
 
-def sort_verts_by_position(verts: list[bmesh.types.BMVert], sort_by: Literal["X", "Y", "Z"] = "Z", descending: bool = False) -> list[bmesh.types.BMVert]:
+
+def sort_verts_by_position(
+    verts: list[bmesh.types.BMVert],
+    sort_by: Literal["X", "Y", "Z"] = "Z",
+    descending: bool = False,
+) -> list[bmesh.types.BMVert]:
     axis_mapping = {"X": 0, "Y": 1, "Z": 2}
-    return sorted(verts, key=lambda vert: vert.co[axis_mapping[sort_by]], reverse=descending)
+    return sorted(
+        verts, key=lambda vert: vert.co[axis_mapping[sort_by]], reverse=descending
+    )
+
 
 def join_meshes(objs: list[bpy.types.Object]) -> bpy.types.Object:
     """Joins a list of Objects into the first one"""
@@ -57,13 +70,16 @@ def join_meshes(objs: list[bpy.types.Object]) -> bpy.types.Object:
         "object": obj_target,
         "active_object": obj_target,
         "selected_objects": objs,
-        "selected_editable_objects": objs
+        "selected_editable_objects": objs,
     }
     with bpy.context.temp_override(**context_overrides):
         bpy.ops.object.join()
     return obj_target
 
-def average_vert_location(obj: bpy.types.Object, verts: list[bpy.types.MeshVertex]) -> tuple[float, float, float]:
+
+def average_vert_location(
+    obj: bpy.types.Object, verts: list[bpy.types.MeshVertex]
+) -> tuple[float, float, float]:
     """Return the average vert location"""
     vert_locations = [obj.matrix_world @ v.co.copy() for v in verts]
     x, y, z = (0.0, 0.0, 0.0)
@@ -72,6 +88,7 @@ def average_vert_location(obj: bpy.types.Object, verts: list[bpy.types.MeshVerte
         y += location[1]
         z += location[2]
     return x / len(verts), y / len(verts), z / len(verts)
+
 
 def copy_selected_into_new_obj(obj: bpy.types.Mesh, cut: bool) -> bpy.types.Mesh:
     """Copies or cuts selected faces of the mesh into a temporary mesh"""
@@ -82,7 +99,7 @@ def copy_selected_into_new_obj(obj: bpy.types.Mesh, cut: bool) -> bpy.types.Mesh
     verts_selected_ids = [v.index for v in verts_selected]
     polys_selected_ids = [poly.index for poly in polys_selected]
 
-    with bpy.context.temp_override(active_object=obj, selected_objects= [obj]):
+    with bpy.context.temp_override(active_object=obj, selected_objects=[obj]):
         bpy.ops.object.duplicate()
     obj_target = bpy.data.objects[bpy.data.objects.find(obj.name) + 1]
     obj_target_data = obj_target.data
@@ -96,7 +113,9 @@ def copy_selected_into_new_obj(obj: bpy.types.Mesh, cut: bool) -> bpy.types.Mesh
     verts_delete = get_all_other_verts(bm_target, verts_keep)
 
     if polys_selected:
-        polys_delete = [poly for poly in bm_target.faces if poly.index not in polys_selected_ids]
+        polys_delete = [
+            poly for poly in bm_target.faces if poly.index not in polys_selected_ids
+        ]
 
     if cut:
         bm_source = bm_target.copy()
@@ -116,6 +135,3 @@ def copy_selected_into_new_obj(obj: bpy.types.Mesh, cut: bool) -> bpy.types.Mesh
 
     obj_target.data = obj_target_data
     return obj_target
-
-
-

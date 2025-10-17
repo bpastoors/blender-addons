@@ -1,6 +1,6 @@
 import bpy
 
-from ..utils.object import  delete_objects
+from ..utils.object import delete_objects
 from ..utils.mesh import join_meshes
 
 

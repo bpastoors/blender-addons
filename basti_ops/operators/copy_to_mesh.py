@@ -3,6 +3,7 @@ import bpy
 from ..utils.mesh import join_meshes, copy_selected_into_new_obj
 from ..utils.raycast import raycast
 
+
 class BastiCopyToMesh(bpy.types.Operator):
     bl_idname = "basti.copy_to_mesh"
     bl_label = "Copy/Paste polygons into mesh under Cursor"
@@ -31,7 +32,11 @@ class BastiCopyToMesh(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object is not None and context.active_object.type == 'MESH' and context.active_object.mode == 'EDIT'
+        return (
+            context.active_object is not None
+            and context.active_object.type == "MESH"
+            and context.active_object.mode == "EDIT"
+        )
 
     def execute(self, context):
         self.copy_cut_to_mesh(context, self.coords, self.cut)

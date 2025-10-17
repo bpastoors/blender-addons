@@ -1,6 +1,11 @@
 import bpy
 
-from ..utils.selection import select_by_id, mesh_selection_mode, select_shared_edges_from_polygons, get_all_selected_edges
+from ..utils.selection import (
+    select_by_id,
+    mesh_selection_mode,
+    select_shared_edges_from_polygons,
+    get_all_selected_edges,
+)
 
 
 class BastiSelectLoop(bpy.types.Operator):
@@ -12,7 +17,10 @@ class BastiSelectLoop(bpy.types.Operator):
     def poll(cls, context):
         if context.active_object is None:
             return False
-        return context.active_object.type == 'MESH' and context.active_object.mode == 'EDIT'
+        return (
+            context.active_object.type == "MESH"
+            and context.active_object.mode == "EDIT"
+        )
 
     def execute(self, context):
         selection_mode = mesh_selection_mode(context)

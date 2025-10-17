@@ -14,10 +14,10 @@ class BastiMergeToActive(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         return (
-                context.active_object is not None
-                and context.active_object.type == 'MESH'
-                and context.active_object.mode == 'EDIT'
-                and mesh_selection_mode(context) == "VERT"
+            context.active_object is not None
+            and context.active_object.type == "MESH"
+            and context.active_object.mode == "EDIT"
+            and mesh_selection_mode(context) == "VERT"
         )
 
     def execute(self, context):
@@ -43,6 +43,6 @@ class BastiMergeToActive(bpy.types.Operator):
         bm.free()
         bpy.ops.object.mode_set(mode="EDIT")
 
-        bpy.ops.mesh.merge(type='CENTER')
+        bpy.ops.mesh.merge(type="CENTER")
 
         return {"FINISHED"}

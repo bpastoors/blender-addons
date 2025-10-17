@@ -20,7 +20,8 @@ class BastiSetViewpoint(bpy.types.Operator):
             ("BACK", "Back", "Back"),
             ("PERSPECTIVE", "Perspective", "Perspective"),
         ],
-        default="PERSPECTIVE")
+        default="PERSPECTIVE",
+    )
 
     def execute(self, context):
         is_perspective = False
