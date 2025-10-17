@@ -3,6 +3,8 @@ from typing import Literal
 import bpy
 import bmesh
 
+from .selection import get_all_selected_vertices, get_all_selected_polygons, add_vertices_from_polygons
+
 
 class AllLinkedVerts:
     """recursively finds all bmesh verts in the submesh and adds them to vertsLinked list"""
@@ -37,7 +39,7 @@ class AllLinkedVerts:
                 self.recursive_search(v)
 
 def get_all_other_verts(
-        bm: bmesh, verts: list[bmesh.types.BMVert]
+        bm: bmesh.types.BMesh, verts: list[bmesh.types.BMVert]
 ) -> list[bmesh.types.BMVert]:
     """Returns a list of all BMVerts in the mesh, but not in the list"""
     return [v for v in bm.verts if v not in verts]
@@ -70,6 +72,50 @@ def average_vert_location(obj: bpy.types.Object, verts: list[bpy.types.MeshVerte
         y += location[1]
         z += location[2]
     return x / len(verts), y / len(verts), z / len(verts)
+
+def copy_selected_into_new_obj(obj: bpy.types.Mesh, cut: bool) -> bpy.types.Mesh:
+    """Copies or cuts selected faces of the mesh into a temporary mesh"""
+    verts_selected = get_all_selected_vertices(obj)
+    polys_selected = get_all_selected_polygons(obj)
+    verts_selected = add_vertices_from_polygons(obj, verts_selected, polys_selected)
+
+    verts_selected_ids = [v.index for v in verts_selected]
+    polys_selected_ids = [poly.index for poly in polys_selected]
+
+    with bpy.context.temp_override(active_object=obj, selected_objects= [obj]):
+        bpy.ops.object.duplicate()
+    obj_target = bpy.data.objects[bpy.data.objects.find(obj.name) + 1]
+    obj_target_data = obj_target.data
+    obj_target.name = "mesh"
+
+    bm_target = bmesh.new()
+    bm_target.from_mesh(obj.data)
+    bm_target.verts.ensure_lookup_table()
+
+    verts_keep = [bm_target.verts[index] for index in verts_selected_ids]
+    verts_delete = get_all_other_verts(bm_target, verts_keep)
+
+    if polys_selected:
+        polys_delete = [poly for poly in bm_target.faces if poly.index not in polys_selected_ids]
+
+    if cut:
+        bm_source = bm_target.copy()
+        bm_source.faces.ensure_lookup_table()
+        faces_delete = [bm_source.faces[index] for index in polys_selected_ids]
+        bmesh.ops.delete(bm_source, geom=faces_delete, context="FACES")
+        bm_source.to_mesh(obj.data)
+        bm_source.free()
+
+    if polys_selected:
+        bmesh.ops.delete(bm_target, geom=polys_delete, context="FACES")
+    else:
+        bmesh.ops.delete(bm_target, geom=verts_delete)
+
+    bm_target.to_mesh(obj_target_data)
+    bm_target.free()
+
+    obj_target.data = obj_target_data
+    return obj_target
 
 
 

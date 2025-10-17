@@ -1,57 +1,21 @@
 import bpy
 
-from .ops_copying import BastiCopyToMesh, BastiCopyToClipboard, BastiPasteFromClipboard, BastiRadialArray
-from .ops_material import BastiApplyMaterial
-from .ops_modeling import BastiBevel, BastiMoveToFace, BastiMergeToActive, BastiScaleToZero, BastiMoveToZero, \
-    BastiDelete
-from .ops_selection import BastiSetSelectionMode, BastiSelectEdgeOrIsland, BastiSelectLoop
-
-# class TraceSpriteToMesh(bpy.types.Operator):
-#     bl_idname = "basti.trace_sprite"
-#     bl_label = "Create a mesh based on the sprite"
-
-#     @classmethod
-#     def poll(cls, context):
-#         return True
-
-#     def execute(self, context):
-#         image = bpy.data.images["FOX_head.png"]
-
-#         image_size = image.size
-#         pixels = list(image.pixels)
-#         pixels_len = len(pixels)
-
-#         pixel_alphas = [pixels[i] for i in range(3, pixels_len, 4)]
-
-#         print(len(pixel_alphas))
-#         print(image_size[0] * image_size[1])
-#         return {'FINISHED'}
-
-
-# class PlanarUV01(bpy.types.Operator):
-#     bl_idname = "basti.planar_uv_01"
-#     bl_label = "Planar uvs with set size"
-#
-#     @classmethod
-#     def poll(cls, context):
-#         return True
-#
-#     def execute(self, context):
-#         mesh = bpy.context.active_object
-#         mesh.data.uv_layers.new(name="spriteUV", do_init=False)
-#
-#         bm = bmesh.new()
-#         bm.from_mesh(mesh.data)
-#         uv_layer = bm.loops.layers.uv["spriteUV"]
-#         for vert in bm.verts:
-#             for loop in vert.link_loops:
-#                 luv = loop[uv_layer]
-#                 coords = vert.co.copy()
-#                 luv.uv = (coords[0] + 0.5, coords[1] + 0.5)
-#         bm.to_mesh(mesh.data)
-#         bm.free()
-#
-#         return {"FINISHED"}
+from .operators.copy_to_clipboard import BastiCopyToClipboard
+from .operators.copy_to_mesh import BastiCopyToMesh
+from .operators.paste_from_clipboard import BastiPasteFromClipboard
+from .operators.radial_array import BastiRadialArray
+from .operators.apply_material import BastiApplyMaterial
+from .operators.bevel import BastiBevel
+from .operators.move_to_face import BastiMoveToFace
+from .operators.merge_to_active import BastiMergeToActive
+from .operators.scale_to_zero import BastiScaleToZero
+from .operators.move_to_zero import BastiMoveToZero
+from .operators.delete import BastiDelete
+from .operators.loop_slice import BastiLoopSlice
+from .operators.set_selection_mode import BastiSetSelectionMode
+from .operators.select_edge_or_island import BastiSelectEdgeOrIsland
+from .operators.select_loop import BastiSelectLoop
+from .operators.set_viewpoint import BastiSetViewpoint
 
 
 classes = [
@@ -68,7 +32,9 @@ classes = [
     BastiSelectLoop,
     BastiScaleToZero,
     BastiMoveToZero,
-    BastiDelete
+    BastiDelete,
+    BastiSetViewpoint,
+    BastiLoopSlice
 ]
 
 

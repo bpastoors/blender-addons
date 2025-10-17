@@ -13,7 +13,7 @@ class VIEW3D_MT_BastiCreateAndCenter(bpy.types.Menu):
         #right
         pie.operator("mesh.primitive_uv_sphere_add")
         #down
-        op = pie.operator("wm.call_menu", text="Move to zero")
+        op = pie.operator("wm.call_menu", text="Center on Axis")
         op.name = "VIEW3D_MT_BastiMoveToZero"
         #up
         pie.operator("mesh.primitive_cube_add")
@@ -22,7 +22,7 @@ class VIEW3D_MT_BastiCreateAndCenter(bpy.types.Menu):
         #up-right
         pie.operator("mesh.primitive_cylinder_add")
         #down-left
-        op = pie.operator("wm.call_menu", text="Scale to zero")
+        op = pie.operator("wm.call_menu", text="Scale to Zero")
         op.name = "VIEW3D_MT_BastiScaleToZero"
         #down-right
         op = pie.operator("wm.call_menu_pie", text="Duplicate")
@@ -79,12 +79,44 @@ class VIEW3D_MT_BastiModeling(bpy.types.Menu):
         pie.operator("transform.shrink_fatten", text="Push")
         pie.operator("mesh.solidify", text="Thicken")
 
+class VIEW3D_MT_Basti3dView(bpy.types.Menu):
+    bl_label = "3d Viewpoint"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+
+        #left
+        op = pie.operator("basti.set_viewpoint", text="Left")
+        op.viewpoint = "LEFT"
+        #right
+        op = pie.operator("basti.set_viewpoint", text="Right")
+        op.viewpoint = "RIGHT"
+        #down
+        op = pie.operator("basti.set_viewpoint", text="Bottom")
+        op.viewpoint = "BOTTOM"
+        #up
+        op = pie.operator("basti.set_viewpoint", text="Top")
+        op.viewpoint = "TOP"
+        #up-left
+        pie.operator("view3d.view_camera", text="Camera")
+        #up-right
+        op = pie.operator("basti.set_viewpoint", text="Perspective")
+        op.viewpoint = "PERSPECTIVE"
+        #down-left
+        op = pie.operator("basti.set_viewpoint", text="Back")
+        op.viewpoint = "BACK"
+        #down-right
+        op = pie.operator("basti.set_viewpoint", text="Front")
+        op.viewpoint = "FRONT"
+
 classes = [
     VIEW3D_MT_BastiCreateAndCenter,
     VIEW3D_MT_BastiDuplicate,
     VIEW3D_MT_BastiScaleToZero,
     VIEW3D_MT_BastiMoveToZero,
-    VIEW3D_MT_BastiModeling
+    VIEW3D_MT_BastiModeling,
+    VIEW3D_MT_Basti3dView
 ]
 
 

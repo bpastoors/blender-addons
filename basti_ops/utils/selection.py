@@ -129,9 +129,28 @@ def select_by_id(obj: bpy.types.Object, selection_mode: str, indices: list[int],
     bmesh.update_edit_mesh(obj.data)
     bm.free()
 
-def deselect_all(obj: bpy.types.Object):
-    """Deselects all elements in the mesh"""
+def select_shared_edges_from_polygons(obj: bpy.types.Object):
+    obj.update_from_editmode()
+    selected_polys = get_all_selected_polygons(obj)
+    if len(selected_polys) < 2:
+        raise RuntimeError("Less than two polygons selected")
 
+    all_edge_keys = []
+    for poly in selected_polys:
+        all_edge_keys.extend(poly.edge_keys)
+    shared_keys = [key for key in set(all_edge_keys) if all_edge_keys.count(key) > 1]
+    if not shared_keys:
+        raise RuntimeError("No shared edges found in polygons")
+
+    selected_edges = get_all_selected_edges(obj)
+    shared_edges = []
+    for edge in selected_edges:
+        if edge.key in shared_keys:
+            shared_edges.append(edge)
+    if not shared_edges:
+        raise RuntimeError("Shared edges don't match selected edges")
+
+    select_by_id(obj, "EDGE", [e.index for e in shared_edges], deselect=True)
 
 
 

@@ -2,7 +2,7 @@ bl_info = {
     "name": "basti_operators",
     "author": "Bastian",
     "description": "",
-    "blender": (2, 93, 0),
+    "blender": (4, 5, 0),
     "version": (0, 0, 1),
     "location": "",
     "warning": "",
@@ -14,9 +14,11 @@ import importlib
 from . import basti_ops
 from . import basti_menus
 from . import utils
+from . import operators
 
 modules = [
     utils,
+    operators,
     basti_ops,
     basti_menus,
 ]
