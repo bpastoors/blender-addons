@@ -1,9 +1,14 @@
 import math
 
+import bmesh
 import bpy
 
-from ..utils.selection import mesh_selection_mode
-from ..utils.mesh import join_meshes, copy_selected_into_new_obj
+from ..utils.selection import (
+    mesh_selection_mode,
+    get_selected_bm_vertices,
+    set_mesh_selection_mode,
+)
+from ..utils.mesh import duplicate_bmesh_geometry
 
 
 class BastiRadialArray(bpy.types.Operator):
@@ -52,21 +57,21 @@ class BastiRadialArray(bpy.types.Operator):
         elif self.pivot == "CURSOR":
             rotation_pivot = context.scene.cursor.location
         rotation_rad = 2 * math.pi / self.count
-        step_objects = []
-        bpy.ops.object.mode_set(mode="OBJECT")
+
+        bm = bmesh.from_edit_mesh(active_object.data)
+        selected_verts = get_selected_bm_vertices(bm, active_object)
         for i in range(1, self.count):
-            new_obj = copy_selected_into_new_obj(active_object, False)
-            for vert in new_obj.data.vertices:
-                coords = bpy.context.object.matrix_world @ Vector(vert.co.copy())
+            new_verts = duplicate_bmesh_geometry(bm, selected_verts)
+            for vert in new_verts:
+                coords = active_object.matrix_world @ vert.co.copy()
                 coords -= rotation_pivot
                 coords = coords @ Matrix.Rotation(rotation_rad * i, 4, self.axis)
                 coords += rotation_pivot
-                vert.co = bpy.context.object.matrix_world.inverted() @ coords
-            step_objects.append(new_obj)
-        join_meshes([active_object, *step_objects])
+                vert.co = active_object.matrix_world.inverted() @ coords
 
-        active_object.select_set(True)
-        bpy.context.view_layer.objects.active = active_object
-        bpy.ops.object.mode_set(mode="EDIT")
+        bmesh.update_edit_mesh(active_object.data)
+        bm.free()
 
+        set_mesh_selection_mode("OBJECT")
+        set_mesh_selection_mode("FACE")
         return {"FINISHED"}

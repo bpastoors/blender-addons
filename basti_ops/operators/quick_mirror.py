@@ -6,7 +6,7 @@ from ..utils.selection import (
     select_by_id,
     mesh_selection_mode,
     set_mesh_selection_mode,
-    get_all_selected_vertices,
+    get_selected_bm_vertices,
 )
 
 
@@ -87,9 +87,8 @@ class BastiQuickMirror(bpy.types.Operator):
         selection_mode = mesh_selection_mode(context)
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        bm.verts.ensure_lookup_table()
 
-        bm_verts_selected = [bm.verts[v.index] for v in get_all_selected_vertices(obj)]
+        bm_verts_selected = get_selected_bm_vertices(bm, obj)
         average_location = sum(
             [get_offset_coords(v)[axis_int] for v in bm_verts_selected]
         ) / len(bm_verts_selected)

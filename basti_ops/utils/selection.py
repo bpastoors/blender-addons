@@ -127,6 +127,14 @@ def add_vertices_from_polygons(
     return verts_selected
 
 
+def get_selected_bm_vertices(
+    bm: bmesh.types.BMesh, obj: bpy.types.Object
+) -> list[bmesh.types.BMVert]:
+    """Returns a list of selected vertices in the mesh"""
+    bm.verts.ensure_lookup_table()
+    return [bm.verts[v.index] for v in get_all_selected_vertices(obj)]
+
+
 def get_bmesh_islands_verts_from_selection(
     obj: bpy.types.Object, bm: bmesh.types.BMesh
 ) -> list[bmesh.types.BMVert]:
