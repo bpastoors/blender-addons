@@ -2,7 +2,7 @@ import bpy
 import bmesh
 from mathutils import Vector
 
-from ..utils.selection import get_all_selected_vertices
+from ..utils.selection import get_selected_bm_vertices
 from ..utils.mesh import AllLinkedVerts, average_vert_location
 from ..utils.raycast import raycast
 
@@ -32,18 +32,11 @@ class BastiMoveToFace(bpy.types.Operator):
         """Move submeshes to the point and rotate them to the normal"""
         obj_data = []
         average_location = Vector((0.0, 0.0, 0.0))
-        vertex_count = 0
 
         for obj in objs:
-            verts_selected = get_all_selected_vertices(obj)
-
-            if len(objs) == 1 and len(verts_selected) == 0:
-                verts_selected = [obj.data.vertices[-1]]
-
             bm = bmesh.from_edit_mesh(obj.data)
-            bm.verts.ensure_lookup_table()
             bm_verts_selected = AllLinkedVerts(
-                [bm.verts[v.index] for v in verts_selected]
+                get_selected_bm_vertices(bm, obj)
             ).execute()
 
             average_location += Vector(average_vert_location(obj, bm_verts_selected))

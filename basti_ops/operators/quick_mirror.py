@@ -102,7 +102,8 @@ class BastiQuickMirror(bpy.types.Operator):
             verts_to_delete = [
                 v
                 for v in verts_to_check
-                if get_offset_coords(v)[axis_int] * deletion_side > 0
+                if get_offset_coords(v)[axis_int] * deletion_side
+                > self.auto_merge_distance
             ]
             for vert in verts_to_delete:
                 if vert in bm_verts_selected:
