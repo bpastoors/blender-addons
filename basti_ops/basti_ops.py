@@ -17,6 +17,7 @@ from .operators.select_edge_or_island import BastiSelectEdgeOrIsland
 from .operators.select_loop import BastiSelectLoop
 from .operators.set_viewpoint import BastiSetViewpoint
 from .operators.quick_mirror import BastiQuickMirror
+from .operators.make_face import BastiMakeFace
 
 
 classes = [
@@ -37,6 +38,7 @@ classes = [
     BastiSetViewpoint,
     BastiLoopSlice,
     BastiQuickMirror,
+    BastiMakeFace,
 ]
 
 

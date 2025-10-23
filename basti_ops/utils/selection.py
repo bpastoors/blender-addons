@@ -147,7 +147,7 @@ def get_bmesh_islands_verts_from_selection(
 
 def select_by_id(
     obj: bpy.types.Object,
-    selection_mode: str,
+    selection_mode: Literal["VERT", "EDGE", "FACE"],
     indices: list[int],
     deselect: bool = False,
 ):
@@ -166,12 +166,23 @@ def select_by_id(
         element_group = bm.faces
 
     if not element_group:
-        raise RuntimeError("No element selected")
+        raise RuntimeError("Element group not found")
 
     element_group.ensure_lookup_table()
 
     for i in indices:
         element_group[i].select_set(True)
+    bmesh.update_edit_mesh(obj.data)
+    bm.free()
+
+
+def force_deselect_all(obj: bpy.types.Object):
+    """Force deselect all elements"""
+    bm = bmesh.from_edit_mesh(obj.data)
+
+    for group in [bm.verts, bm.edges, bm.faces]:
+        for element in group:
+            element.select_set(False)
     bmesh.update_edit_mesh(obj.data)
     bm.free()
 
@@ -198,3 +209,50 @@ def select_shared_edges_from_polygons(obj: bpy.types.Object):
         raise RuntimeError("Shared edges don't match selected edges")
 
     select_by_id(obj, "EDGE", [e.index for e in shared_edges], deselect=True)
+
+
+def get_linked_edges(
+    obj: bpy.types.Object,
+    verts: Union[list[bpy.types.MeshVertex], list[bmesh.types.BMVert]],
+) -> Union[list[bpy.types.MeshEdge], list[bmesh.types.BMEdge]]:
+    bm = bmesh.from_edit_mesh(obj.data)
+    edges = list({edge for vert in verts for edge in bm.verts[vert.index].link_edges})
+    bm.free()
+    if isinstance(verts[0], bmesh.types.BMVert):
+        return edges
+    return [obj.data.edges[e.index] for e in edges]
+
+
+def select_open_border_loop(
+    obj: bpy.types.Object,
+    selected_edges: Union[list[bpy.types.MeshEdge], list[bmesh.types.BMEdge]],
+):
+    bm = bmesh.from_edit_mesh(obj.data)
+    selected_bm_edges = [
+        bm.edges[e.index]
+        for e in selected_edges
+        if len(bm.edges[e.index].link_faces) == 1
+    ]
+    neighbours_to_check = [
+        linked_edge
+        for selected_edge in selected_bm_edges
+        for v in selected_edge.verts
+        for linked_edge in v.link_edges
+        if linked_edge not in selected_bm_edges and len(linked_edge.link_faces) == 1
+    ]
+    while len(neighbours_to_check) > 0:
+        edge = neighbours_to_check[-1]
+        neighbours_to_check.remove(edge)
+        selected_bm_edges.append(edge)
+        neighbours_to_check.extend(
+            [
+                linked_edge
+                for v in edge.verts
+                for linked_edge in v.link_edges
+                if linked_edge not in selected_bm_edges
+                and len(linked_edge.link_faces) == 1
+                and linked_edge not in neighbours_to_check
+            ]
+        )
+    bm.free()
+    select_by_id(obj, "EDGE", [e.index for e in selected_bm_edges], deselect=True)

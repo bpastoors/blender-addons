@@ -1,5 +1,6 @@
 import bpy
 
+from ..utils.selection import force_deselect_all
 from ..utils.mesh import join_meshes, copy_selected_into_new_obj
 from ..utils.raycast import raycast
 
@@ -16,12 +17,13 @@ class BastiCopyToMesh(bpy.types.Operator):
 
         bpy.ops.object.mode_set(mode="OBJECT")
         objs_selected = [obj for obj in context.selected_objects if obj.type == "MESH"]
+
         objs_to_join = []
         for obj in objs_selected:
             objs_to_join.append(copy_selected_into_new_obj(obj, cut))
 
         if raycast_result and obj_target.type == "MESH":
-            bpy.ops.mesh.select_all(action="DESELECT")
+            force_deselect_all(obj_target)
             objs_to_join.insert(0, obj_target)
 
         obj_target = join_meshes(objs_to_join)
