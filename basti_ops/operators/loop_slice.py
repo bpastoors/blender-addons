@@ -42,7 +42,9 @@ class BastiLoopSlice(bpy.types.Operator):
         for edge_id in selected_edge_ids:
             select_by_id(obj, "EDGE", [edge_id], True)
             bpy.ops.mesh.loop_multi_select(ring=True)
-            bpy.ops.mesh.subdivide_edgering(number_cuts=self.count)
+            bpy.ops.mesh.subdivide_edgering(
+                number_cuts=self.count, interpolation="LINEAR"
+            )
 
             obj.update_from_editmode()
             for i in range(self.count):
