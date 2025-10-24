@@ -18,6 +18,7 @@ from .operators.select_loop import BastiSelectLoop
 from .operators.set_viewpoint import BastiSetViewpoint
 from .operators.quick_mirror import BastiQuickMirror
 from .operators.make_face import BastiMakeFace
+from .operators.connect_or_knife import BastiConnectOrKnife
 
 
 classes = [
@@ -39,6 +40,7 @@ classes = [
     BastiLoopSlice,
     BastiQuickMirror,
     BastiMakeFace,
+    BastiConnectOrKnife,
 ]
 
 
