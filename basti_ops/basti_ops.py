@@ -19,6 +19,7 @@ from .operators.set_viewpoint import BastiSetViewpoint
 from .operators.quick_mirror import BastiQuickMirror
 from .operators.make_face import BastiMakeFace
 from .operators.connect_or_knife import BastiConnectOrKnife
+from .operators.toggle_sculpt_automasking import BastiToggleSculptAutomasking
 
 
 classes = [
@@ -41,6 +42,7 @@ classes = [
     BastiQuickMirror,
     BastiMakeFace,
     BastiConnectOrKnife,
+    BastiToggleSculptAutomasking,
 ]
 
 
