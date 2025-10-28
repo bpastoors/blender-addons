@@ -100,6 +100,8 @@ class BastiMoveToFace(bpy.types.Operator):
         if context.mode == "OBJECT":
             self.move_objects_to_point(objs_selected, Vector(location), orient, normal)
         else:
+            if len(objs_selected) == 0:
+                objs_selected = [obj_active]
             self.move_submeshes_to_point(objs_selected, Vector(location))
 
         bpy.context.view_layer.objects.active = obj_active
