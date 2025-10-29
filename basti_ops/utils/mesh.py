@@ -79,7 +79,7 @@ def join_meshes(objs: list[bpy.types.Object]) -> bpy.types.Object:
     }
     with bpy.context.temp_override(**context_overrides):
         bpy.ops.object.join()
-    set_mesh_selection_mode(selection_mode)
+        set_mesh_selection_mode(selection_mode)
     return obj_target
 
 
