@@ -79,5 +79,4 @@ class BastiToggleSculptAutomasking(bpy.types.Operator):
                 )
         except:
             return {"CANCELLED"}
-        # print(mode_mapping[self.mode])
         return {"FINISHED"}
