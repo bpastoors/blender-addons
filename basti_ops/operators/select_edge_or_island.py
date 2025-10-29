@@ -1,6 +1,12 @@
-import bpy
+import bpy, bmesh
 
-from ..utils.selection import mesh_selection_mode
+from ..utils.mesh import AllLinkedVerts
+from ..utils.selection import (
+    mesh_selection_mode,
+    get_selected_bm_vertices,
+    select_by_id,
+    set_mesh_selection_mode,
+)
 
 
 class BastiSelectEdgeOrIsland(bpy.types.Operator):
@@ -21,6 +27,13 @@ class BastiSelectEdgeOrIsland(bpy.types.Operator):
         selection_mode = mesh_selection_mode(context)
         if selection_mode == "EDGE":
             bpy.ops.mesh.loop_multi_select(ring=False)
+
         if selection_mode in ["FACE", "VERT"]:
-            bpy.ops.mesh.select_linked()
+            obj = context.active_object
+            bm = bmesh.from_edit_mesh(obj.data)
+            verts = AllLinkedVerts(get_selected_bm_vertices(bm, obj)).execute()
+            bm.free()
+            select_by_id(obj, "VERT", [v.index for v in verts], False)
+            set_mesh_selection_mode("OBJECT")
+            set_mesh_selection_mode(selection_mode)
         return {"FINISHED"}
