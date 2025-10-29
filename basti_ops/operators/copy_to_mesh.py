@@ -1,6 +1,10 @@
 import bpy
 
-from ..utils.selection import force_deselect_all
+from ..utils.selection import (
+    force_deselect_all,
+    mesh_selection_mode,
+    set_mesh_selection_mode,
+)
 from ..utils.mesh import join_meshes, copy_selected_into_new_obj
 from ..utils.raycast import raycast
 
@@ -15,7 +19,8 @@ class BastiCopyToMesh(bpy.types.Operator):
     def copy_cut_to_mesh(self, context, coords, cut=False):
         raycast_result, _, _, _, obj_target = raycast(context, coords)
 
-        bpy.ops.object.mode_set(mode="OBJECT")
+        selection_mode = mesh_selection_mode(context)
+        set_mesh_selection_mode("OBJECT")
         objs_selected = [obj for obj in context.selected_objects if obj.type == "MESH"]
 
         objs_to_join = []
@@ -30,7 +35,7 @@ class BastiCopyToMesh(bpy.types.Operator):
 
         obj_target.select_set(True)
         bpy.context.view_layer.objects.active = obj_target
-        bpy.ops.object.mode_set(mode="EDIT")
+        set_mesh_selection_mode(selection_mode)
 
     @classmethod
     def poll(cls, context):

@@ -3,10 +3,13 @@ from typing import Literal
 import bpy
 import bmesh
 
+from .object import duplicate_object
 from .selection import (
+    mesh_selection_mode,
     get_all_selected_vertices,
     get_all_selected_polygons,
     add_vertices_from_polygons,
+    set_mesh_selection_mode,
 )
 
 
@@ -63,6 +66,8 @@ def sort_verts_by_position(
 
 def join_meshes(objs: list[bpy.types.Object]) -> bpy.types.Object:
     """Joins a list of Objects into the first one"""
+    selection_mode = mesh_selection_mode(bpy.context)
+    set_mesh_selection_mode("OBJECT")
     if len(objs) < 2:
         return objs[0]
     obj_target = objs[0]
@@ -74,6 +79,7 @@ def join_meshes(objs: list[bpy.types.Object]) -> bpy.types.Object:
     }
     with bpy.context.temp_override(**context_overrides):
         bpy.ops.object.join()
+    set_mesh_selection_mode(selection_mode)
     return obj_target
 
 
@@ -92,17 +98,19 @@ def average_vert_location(
 
 def copy_selected_into_new_obj(obj: bpy.types.Mesh, cut: bool) -> bpy.types.Mesh:
     """Copies or cuts selected faces of the mesh into a temporary mesh"""
-    verts_selected = get_all_selected_vertices(obj)
     polys_selected = get_all_selected_polygons(obj)
-    verts_selected = add_vertices_from_polygons(obj, verts_selected, polys_selected)
 
-    verts_selected_ids = [v.index for v in verts_selected]
+    verts_selected_ids = [
+        v.index
+        for v in add_vertices_from_polygons(
+            obj, get_all_selected_vertices(obj), polys_selected
+        )
+    ]
     polys_selected_ids = [poly.index for poly in polys_selected]
 
-    with bpy.context.temp_override(active_object=obj, selected_objects=[obj]):
-        bpy.ops.object.duplicate()
-    obj_target = bpy.data.objects[bpy.data.objects.find(obj.name) + 1]
+    obj_target = duplicate_object(obj)
     obj_target_data = obj_target.data
+    obj_target.data.name = "mesh"
     obj_target.name = "mesh"
 
     bm_target = bmesh.new()

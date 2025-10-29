@@ -28,7 +28,7 @@ def mesh_selection_mode(
 
 def set_mesh_selection_mode(
     selection_mode: str,
-    selection_mask: Optional[tuple[bool]] = None,
+    selection_mask: Optional[tuple[bool, bool, bool]] = None,
     curve: Optional[bool] = False,
 ):
     if selection_mode == "OBJECT":
@@ -178,6 +178,8 @@ def select_by_id(
 
 def force_deselect_all(obj: bpy.types.Object):
     """Force deselect all elements"""
+    obj.select_set(True)
+    set_mesh_selection_mode("MIXED", (True, True, True))
     bm = bmesh.from_edit_mesh(obj.data)
 
     for group in [bm.verts, bm.edges, bm.faces]:
