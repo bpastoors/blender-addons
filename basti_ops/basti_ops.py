@@ -7,7 +7,6 @@ from .operators.radial_array import BastiRadialArray
 from .operators.apply_material import BastiApplyMaterial
 from .operators.bevel import BastiBevel
 from .operators.move_to_face import BastiMoveToFace
-from .operators.merge_to_active import BastiMergeToActive
 from .operators.scale_to_zero import BastiScaleToZero
 from .operators.move_to_zero import BastiMoveToZero
 from .operators.delete import BastiDelete
@@ -30,7 +29,6 @@ classes = [
     BastiApplyMaterial,
     BastiSetSelectionMode,
     BastiBevel,
-    BastiMergeToActive,
     BastiRadialArray,
     BastiSelectEdgeOrIsland,
     BastiSelectLoop,
