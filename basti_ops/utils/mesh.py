@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Union
 
 import bpy
 import bmesh
@@ -11,39 +11,6 @@ from .selection import (
     add_vertices_from_polygons,
     set_mesh_selection_mode,
 )
-
-
-class AllLinkedVerts:
-    """recursively finds all bmesh verts in the submesh and adds them to vertsLinked list"""
-
-    def __init__(self, seed_verts: list[bmesh.types.BMVert]):
-        self.checked_faces = []
-        self.verts_linked = seed_verts
-        self.seed_verts = seed_verts
-
-    def execute(self):
-        for vert in self.seed_verts:
-            self.recursive_search(vert)
-        return self.verts_linked
-
-    def recursive_search(self, seed_vert: bmesh.types.BMVert):
-        """Finds all BMVerts link to the seed vert"""
-        new_verts = []
-        for f in seed_vert.link_faces:
-            if f in self.checked_faces:
-                continue
-
-            self.checked_faces.append(f)
-            for v in f.verts:
-                if v in self.verts_linked:
-                    continue
-
-                self.verts_linked.append(v)
-                new_verts.append(v)
-
-        if len(new_verts) > 0:
-            for v in new_verts:
-                self.recursive_search(v)
 
 
 def get_all_other_verts(

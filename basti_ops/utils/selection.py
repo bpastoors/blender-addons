@@ -137,22 +137,59 @@ def add_vertices_from_polygons(
     return verts_selected
 
 
+def get_all_linked_verts(
+    obj: bpy.types.Object,
+    bm: Optional[bmesh.types.BMesh] = None,
+    seed_verts: Optional[
+        Union[list[bpy.types.MeshVertex], list[bmesh.types.BMVert], list[int]]
+    ] = None,
+    get_index: Optional[bool] = False,
+) -> Union[list[bpy.types.MeshVertex], list[bmesh.types.BMVert], list[int]]:
+    bm_temp = bm or bmesh.from_edit_mesh(obj.data)
+    bm_temp.verts.ensure_lookup_table()
+    bm_temp.edges.ensure_lookup_table()
+
+    vert_ids = []
+    if seed_verts:
+        if not isinstance(seed_verts[0], int):
+            vert_ids = [v.index for v in seed_verts]
+    else:
+        vert_ids = get_all_selected_vertices(obj, none_is_all=True, get_index=True)
+
+    checked_edges = []
+    edges_to_check = [e for i in vert_ids for e in bm_temp.verts[i].link_edges]
+
+    while len(edges_to_check) > 0:
+        edge = edges_to_check.pop()
+        checked_edges.append(edge)
+        for vert in edge.verts:
+            if vert.index in vert_ids:
+                continue
+            vert_ids.append(vert.index)
+            edges_to_check.extend(
+                e
+                for e in bm_temp.verts[vert.index].link_edges
+                if e not in checked_edges
+            )
+
+    if not bm:
+        bm_temp.free()
+
+    if get_index:
+        return vert_ids
+    return (
+        [bm.verts[i] for i in vert_ids]
+        if bm
+        else [obj.data.vertices[i] for i in vert_ids]
+    )
+
+
 def get_selected_bm_vertices(
     bm: bmesh.types.BMesh, obj: bpy.types.Object
 ) -> list[bmesh.types.BMVert]:
     """Returns a list of selected vertices in the mesh"""
     bm.verts.ensure_lookup_table()
-    return [bm.verts[v.index] for v in get_all_selected_vertices(obj)]
-
-
-def get_bmesh_islands_verts_from_selection(
-    obj: bpy.types.Object, bm: bmesh.types.BMesh
-) -> list[bmesh.types.BMVert]:
-    from .mesh import AllLinkedVerts
-
-    return AllLinkedVerts(
-        [bm.verts[v.index] for v in get_all_selected_vertices(obj)]
-    ).execute()
+    return [bm.verts[i] for i in get_all_selected_vertices(obj, get_index=True)]
 
 
 def select_by_id(

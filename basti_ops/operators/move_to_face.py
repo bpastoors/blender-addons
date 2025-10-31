@@ -2,8 +2,8 @@ import bpy
 import bmesh
 from mathutils import Vector
 
-from ..utils.selection import get_selected_bm_vertices
-from ..utils.mesh import AllLinkedVerts, average_vert_location
+from ..utils.selection import get_all_linked_verts
+from ..utils.mesh import average_vert_location
 from ..utils.raycast import raycast
 
 
@@ -35,9 +35,7 @@ class BastiMoveToFace(bpy.types.Operator):
 
         for obj in objs:
             bm = bmesh.from_edit_mesh(obj.data)
-            bm_verts_selected = AllLinkedVerts(
-                get_selected_bm_vertices(bm, obj)
-            ).execute()
+            bm_verts_selected = get_all_linked_verts(obj, bm)
 
             average_location += Vector(average_vert_location(obj, bm_verts_selected))
 
