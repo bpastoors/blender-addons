@@ -80,37 +80,47 @@ def get_continuous_edge_selection(
     return edges_connected, edges_selected
 
 
+def get_all_selected(
+    obj: bpy.types.Object,
+    element_type: Literal["VERT", "EDGE", "FACE"],
+    none_is_all: bool = False,
+    get_index: bool = False,
+):
+    obj.update_from_editmode()
+    if element_type == "VERT":
+        element_group = obj.data.vertices
+    elif element_type == "EDGE":
+        element_group = obj.data.edges
+    elif element_type == "FACE":
+        element_group = obj.data.polygons
+    else:
+        raise RuntimeError("Element group not found")
+
+    selection = [e for e in element_group if e.select]
+    if none_is_all and len(selection) == 0:
+        selection = element_group
+    return [e.index for e in selection] if get_index else selection
+
+
 def get_all_selected_vertices(
     obj: bpy.types.Object, none_is_all: bool = False, get_index: bool = False
 ) -> list[bpy.types.MeshVertex]:
     """Returns a list of selected vertices in the mesh"""
-    obj.update_from_editmode()
-    selected_vertices = [v for v in obj.data.vertices if v.select]
-    if none_is_all and len(selected_vertices) == 0:
-        selected_vertices = obj.data.vertices
-    return selected_vertices
+    return get_all_selected(obj, "VERT", none_is_all, get_index)
 
 
 def get_all_selected_edges(
     obj: bpy.types.Object, none_is_all: bool = False, get_index: bool = False
 ) -> list[bpy.types.MeshEdge]:
     """Returns a list of selected edges in the mesh"""
-    obj.update_from_editmode()
-    selected_edges = [e for e in obj.data.edges if e.select]
-    if none_is_all and len(selected_edges) == 0:
-        selected_edges = obj.data.edges
-    return selected_edges
+    return get_all_selected(obj, "EDGE", none_is_all, get_index)
 
 
 def get_all_selected_polygons(
     obj: bpy.types.Object, none_is_all: bool = False, get_index: bool = False
 ) -> list[bpy.types.MeshPolygon]:
     """Returns a list of selected polygons in the mesh"""
-    obj.update_from_editmode()
-    selected_polys = [p for p in obj.data.polygons if p.select]
-    if none_is_all and len(selected_polys) == 0:
-        selected_polys = obj.data.polygons
-    return selected_polys
+    return get_all_selected(obj, "FACE", none_is_all, get_index)
 
 
 def add_vertices_from_polygons(
