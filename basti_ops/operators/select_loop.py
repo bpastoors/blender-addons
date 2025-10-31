@@ -46,6 +46,6 @@ class BastiSelectLoop(bpy.types.Operator):
             if len(matched_keys) == 2:
                 polys_to_select.append(poly.index)
 
-        select_by_id(obj, "FACE", polys_to_select, deselect=True)
+        select_by_id(obj, "FACE", polys_to_select)
 
         return {"FINISHED"}

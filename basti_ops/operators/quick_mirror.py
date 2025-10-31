@@ -132,7 +132,7 @@ class BastiQuickMirror(bpy.types.Operator):
         bm.free()
 
         if self.auto_merge:
-            select_by_id(obj, "VERT", [v.index for v in bm_verts_duplicated], True)
+            select_by_id(obj, "VERT", [v.index for v in bm_verts_duplicated])
             bpy.ops.mesh.remove_doubles(
                 threshold=self.auto_merge_distance, use_unselected=True
             )

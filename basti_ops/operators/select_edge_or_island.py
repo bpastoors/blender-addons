@@ -33,7 +33,7 @@ class BastiSelectEdgeOrIsland(bpy.types.Operator):
             bm = bmesh.from_edit_mesh(obj.data)
             verts = AllLinkedVerts(get_selected_bm_vertices(bm, obj)).execute()
             bm.free()
-            select_by_id(obj, "VERT", [v.index for v in verts], False)
+            select_by_id(obj, "VERT", [v.index for v in verts], clear_selection=False)
             set_mesh_selection_mode("OBJECT")
             set_mesh_selection_mode(selection_mode)
         return {"FINISHED"}

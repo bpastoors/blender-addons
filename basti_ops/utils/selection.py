@@ -149,11 +149,12 @@ def select_by_id(
     obj: bpy.types.Object,
     selection_mode: Literal["VERT", "EDGE", "FACE"],
     indices: list[int],
+    clear_selection: bool = True,
     deselect: bool = False,
 ):
-    """Selects elements by type and index in the mesh"""
+    """Select or deselect elements by type and index in the mesh"""
     set_mesh_selection_mode(selection_mode, curve=False)
-    if deselect:
+    if clear_selection:
         bpy.ops.mesh.select_all(action="DESELECT")
     bm = bmesh.from_edit_mesh(obj.data)
 
@@ -171,7 +172,7 @@ def select_by_id(
     element_group.ensure_lookup_table()
 
     for i in indices:
-        element_group[i].select_set(True)
+        element_group[i].select_set(not deselect)
     bmesh.update_edit_mesh(obj.data)
     bm.free()
 
@@ -210,7 +211,7 @@ def select_shared_edges_from_polygons(obj: bpy.types.Object):
     if not shared_edges:
         raise RuntimeError("Shared edges don't match selected edges")
 
-    select_by_id(obj, "EDGE", [e.index for e in shared_edges], deselect=True)
+    select_by_id(obj, "EDGE", [e.index for e in shared_edges])
 
 
 def get_linked_edges(
@@ -257,4 +258,4 @@ def select_open_border_loop(
             ]
         )
     bm.free()
-    select_by_id(obj, "EDGE", [e.index for e in selected_bm_edges], deselect=True)
+    select_by_id(obj, "EDGE", [e.index for e in selected_bm_edges])
