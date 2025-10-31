@@ -81,7 +81,7 @@ def get_continuous_edge_selection(
 
 
 def get_all_selected_vertices(
-    obj: bpy.types.Mesh, none_is_all: bool = False
+    obj: bpy.types.Object, none_is_all: bool = False, get_index: bool = False
 ) -> list[bpy.types.MeshVertex]:
     """Returns a list of selected vertices in the mesh"""
     obj.update_from_editmode()
@@ -92,7 +92,7 @@ def get_all_selected_vertices(
 
 
 def get_all_selected_edges(
-    obj: bpy.types.Mesh, none_is_all: bool = False
+    obj: bpy.types.Object, none_is_all: bool = False, get_index: bool = False
 ) -> list[bpy.types.MeshEdge]:
     """Returns a list of selected edges in the mesh"""
     obj.update_from_editmode()
@@ -103,7 +103,7 @@ def get_all_selected_edges(
 
 
 def get_all_selected_polygons(
-    obj: bpy.types.Object, none_is_all: bool = False
+    obj: bpy.types.Object, none_is_all: bool = False, get_index: bool = False
 ) -> list[bpy.types.MeshPolygon]:
     """Returns a list of selected polygons in the mesh"""
     obj.update_from_editmode()
