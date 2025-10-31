@@ -154,7 +154,7 @@ def select_by_id(
 ):
     """Select or deselect elements by type and index in the mesh"""
     set_mesh_selection_mode(selection_mode, curve=False)
-    if clear_selection:
+    if clear_selection and not deselect:
         bpy.ops.mesh.select_all(action="DESELECT")
     bm = bmesh.from_edit_mesh(obj.data)
 
