@@ -190,6 +190,15 @@ def force_deselect_all(obj: bpy.types.Object):
     bm.free()
 
 
+def select_edges_between_vertices(obj: bpy.types.Object):
+    obj.update_from_editmode()
+    selected_verts = get_all_selected_vertices(obj, get_index=True)
+    edges_to_select = [
+        e.index for e in obj.data.edges if all(i in selected_verts for i in e.key)
+    ]
+    select_by_id(obj, "EDGE", edges_to_select)
+
+
 def select_shared_edges_from_polygons(obj: bpy.types.Object):
     obj.update_from_editmode()
     selected_polys = get_all_selected_polygons(obj)
