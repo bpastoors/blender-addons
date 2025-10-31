@@ -4,7 +4,9 @@ from ..utils.selection import (
     mesh_selection_mode,
     select_shared_edges_from_polygons,
     get_all_selected_edges,
+    get_all_selected_vertices,
     select_by_id,
+    select_edges_between_vertices,
 )
 
 
@@ -35,24 +37,28 @@ class BastiLoopSlice(bpy.types.Operator):
             except RuntimeError:
                 return {"CANCELLED"}
 
+        bpy.ops.mesh.loop_multi_select(ring=True)
+        bpy.ops.mesh.subdivide_edgering(number_cuts=self.count, interpolation="LINEAR")
+
         obj.update_from_editmode()
-        selected_edge_ids = [e.index for e in get_all_selected_edges(obj)]
-        new_edge_ids = []
+        selected_edges = get_all_selected_edges(obj)
+        selected_edges_ids = [e.index for e in selected_edges]
+        selected_edges_keys = [e.key for e in selected_edges]
+        selected_vert_ids = get_all_selected_vertices(obj, get_index=True)
 
-        for edge_id in selected_edge_ids:
-            select_by_id(obj, "EDGE", [edge_id], True)
-            bpy.ops.mesh.loop_multi_select(ring=True)
-            bpy.ops.mesh.subdivide_edgering(
-                number_cuts=self.count, interpolation="LINEAR"
-            )
+        verts_ids_to_select = list(
+            {
+                v_index
+                for key in selected_edges_keys
+                for v_index in key
+                if v_index not in selected_vert_ids
+            }
+        )
 
-            obj.update_from_editmode()
-            for i in range(self.count):
-                new_edge_ids.append(len(obj.data.edges) - 1 - i)
+        select_by_id(obj, "VERT", verts_ids_to_select)
+        select_edges_between_vertices(obj)
+        select_by_id(obj, "EDGE", selected_edges_ids, deselect=True)
 
-        select_by_id(obj, "EDGE", new_edge_ids, True)
-        bpy.ops.mesh.loop_multi_select()
         if not self.multi:
             bpy.ops.transform.edge_slide("INVOKE_DEFAULT")
-
         return {"FINISHED"}
