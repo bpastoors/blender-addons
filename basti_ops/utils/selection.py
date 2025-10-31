@@ -225,7 +225,7 @@ def select_shared_edges_from_polygons(obj: bpy.types.Object):
     selected_edges = get_all_selected_edges(obj)
     shared_edges = [e for e in selected_edges if e.key in shared_keys]
     if not shared_edges:
-        raise RuntimeError("Shared edges don't match selected edges")
+        raise RuntimeError("Shared edge keys don't match selected edges")
 
     select_by_id(obj, "EDGE", [e.index for e in shared_edges])
 
