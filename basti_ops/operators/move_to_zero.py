@@ -1,7 +1,7 @@
 import bpy
 
 from ..utils.selection import get_selected_vertices
-from ..utils.mesh import average_vert_location
+from ..utils.mesh import get_average_location
 
 
 class BastiMoveToZero(bpy.types.Operator):
@@ -26,7 +26,7 @@ class BastiMoveToZero(bpy.types.Operator):
             and context.active_object.mode == "EDIT"
         ):
             verts_selected = get_selected_vertices(obj)
-            center = average_vert_location(obj, verts_selected)
+            center = get_average_location(verts_selected, obj)
             value = (
                 center[0] * -1.0 if self.x else 0.0,
                 center[1] * -1.0 if self.y else 0.0,

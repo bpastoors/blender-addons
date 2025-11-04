@@ -1,7 +1,8 @@
-from typing import Literal, Union
+from typing import Literal, Union, Optional
 
 import bpy
 import bmesh
+from mathutils import Vector
 
 from .object import duplicate_object
 from .selection import (
@@ -50,18 +51,63 @@ def join_meshes(objs: list[bpy.types.Object]) -> bpy.types.Object:
     return obj_target
 
 
-def average_vert_location(
-    obj: bpy.types.Object,
-    verts: Union[list[bpy.types.MeshVertex], list[bmesh.types.BMVert]],
-) -> tuple[float, float, float]:
+def get_average_location(
+    elements: Union[
+        list[bpy.types.MeshVertex],
+        list[bmesh.types.BMVert],
+        list[bpy.types.MeshEdge],
+        list[bmesh.types.BMEdge],
+        list[bpy.types.MeshPolygon],
+        list[bmesh.types.BMFace],
+    ],
+    obj: Optional[bpy.types.Object] = None,
+) -> Vector:
     """Return the average vert location"""
-    vert_locations = [obj.matrix_world @ v.co.copy() for v in verts]
-    x, y, z = (0.0, 0.0, 0.0)
-    for location in vert_locations:
-        x += location[0]
-        y += location[1]
-        z += location[2]
-    return x / len(verts), y / len(verts), z / len(verts)
+    if not elements:
+        raise ValueError("No elements to average")
+
+    if not any(
+        isinstance(elements[0], vert_type)
+        for vert_type in (bpy.types.MeshVertex, bmesh.types.BMVert)
+    ):
+        if any(
+            isinstance(elements[0], vert_type)
+            for vert_type in (bmesh.types.BMEdge, bmesh.types.BMFace)
+        ):
+            verts = [v for e in elements for v in e.verts]
+        else:
+            verts = [v for e in elements for v in e.vertices]
+    else:
+        verts = elements
+
+    location = Vector.Fill(3)
+    for v in verts:
+        location += v.co.copy()
+    location /= len(verts)
+    return obj.matrix_world @ location if obj else location
+
+
+def get_average_normal(
+    elements: Union[
+        list[bpy.types.MeshVertex],
+        list[bmesh.types.BMVert],
+        list[bpy.types.MeshPolygon],
+        list[bmesh.types.BMFace],
+    ],
+    obj: Optional[bpy.types.Object] = None,
+) -> Vector:
+    """Return the average normal"""
+    if not elements:
+        raise ValueError("No elements to average")
+
+    normal = Vector.Fill(3)
+    for e in elements:
+        normal += e.normal.copy()
+    if obj:
+        # todo: doesn't work for rotated objects at the moment :[
+        matrix = obj.matrix_world.to_3x3()
+        normal = matrix @ normal
+    return normal.normalized()
 
 
 def copy_selected_into_new_obj(obj: bpy.types.Mesh, cut: bool) -> bpy.types.Mesh:
