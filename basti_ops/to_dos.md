@@ -1,5 +1,6 @@
 * action center cursor stuff
 * draw polygon tool
+* split and offset uvs by 1
 * add symmetrical sliding to loop slicing
 * radial array in object mode
 * linear array

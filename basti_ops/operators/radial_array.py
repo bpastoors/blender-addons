@@ -4,7 +4,7 @@ import bmesh
 import bpy
 
 from ..utils.selection import (
-    mesh_selection_mode,
+    get_mesh_selection_mode,
     get_selected_bm_vertices,
     set_mesh_selection_mode,
 )
@@ -44,7 +44,7 @@ class BastiRadialArray(bpy.types.Operator):
             context.active_object is not None
             and context.active_object.type == "MESH"
             and context.active_object.mode == "EDIT"
-            and mesh_selection_mode(context) == "FACE"
+            and get_mesh_selection_mode(context) == "FACE"
         )
 
     def execute(self, context):

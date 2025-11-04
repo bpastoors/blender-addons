@@ -1,6 +1,6 @@
 import bpy
 
-from ..utils.selection import mesh_selection_mode
+from ..utils.selection import get_mesh_selection_mode
 
 
 class BastiBevel(bpy.types.Operator):
@@ -19,7 +19,7 @@ class BastiBevel(bpy.types.Operator):
         )
 
     def execute(self, context):
-        submesh_mode = mesh_selection_mode(context)
+        submesh_mode = get_mesh_selection_mode(context)
         if submesh_mode == "VERT":
             bpy.ops.mesh.bevel("INVOKE_DEFAULT", affect="VERTICES")
         elif submesh_mode == "EDGE":

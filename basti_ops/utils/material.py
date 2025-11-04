@@ -1,6 +1,6 @@
 import bpy
 
-from .selection import get_all_selected_polygons
+from .selection import get_selected_polygons
 
 
 def get_materials_on_objects(objs: list[bpy.types.Mesh]) -> list[bpy.types.Material]:
@@ -46,7 +46,11 @@ def apply_material_on_selected_faces(context, material):
     bpy.ops.object.mode_set(mode="OBJECT")
 
     for obj in objs_selected:
-        polys_selected = obj.data.polygons if context_mode == "OBJECT" else get_all_selected_polygons(obj, True)
+        polys_selected = (
+            obj.data.polygons
+            if context_mode == "OBJECT"
+            else get_selected_polygons(obj, True)
+        )
 
         if len(obj.material_slots) == 0:
             obj.data.materials.append(material)

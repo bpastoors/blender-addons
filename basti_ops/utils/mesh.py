@@ -5,9 +5,9 @@ import bmesh
 
 from .object import duplicate_object
 from .selection import (
-    mesh_selection_mode,
-    get_all_selected_vertices,
-    get_all_selected_polygons,
+    get_mesh_selection_mode,
+    get_selected_vertices,
+    get_selected_polygons,
     add_vertices_from_polygons,
     set_mesh_selection_mode,
 )
@@ -33,7 +33,7 @@ def sort_verts_by_position(
 
 def join_meshes(objs: list[bpy.types.Object]) -> bpy.types.Object:
     """Joins a list of Objects into the first one"""
-    selection_mode = mesh_selection_mode(bpy.context)
+    selection_mode = get_mesh_selection_mode(bpy.context)
     set_mesh_selection_mode("OBJECT")
     if len(objs) < 2:
         return objs[0]
@@ -51,7 +51,8 @@ def join_meshes(objs: list[bpy.types.Object]) -> bpy.types.Object:
 
 
 def average_vert_location(
-    obj: bpy.types.Object, verts: Union[list[bpy.types.MeshVertex], list[bmesh.types.BMVert]]
+    obj: bpy.types.Object,
+    verts: Union[list[bpy.types.MeshVertex], list[bmesh.types.BMVert]],
 ) -> tuple[float, float, float]:
     """Return the average vert location"""
     vert_locations = [obj.matrix_world @ v.co.copy() for v in verts]
@@ -65,12 +66,12 @@ def average_vert_location(
 
 def copy_selected_into_new_obj(obj: bpy.types.Mesh, cut: bool) -> bpy.types.Mesh:
     """Copies or cuts selected faces of the mesh into a temporary mesh"""
-    polys_selected = get_all_selected_polygons(obj)
+    polys_selected = get_selected_polygons(obj)
 
     verts_selected_ids = [
         v.index
         for v in add_vertices_from_polygons(
-            obj, get_all_selected_vertices(obj), polys_selected
+            obj, get_selected_vertices(obj), polys_selected
         )
     ]
     polys_selected_ids = [poly.index for poly in polys_selected]

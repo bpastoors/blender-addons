@@ -1,10 +1,10 @@
 import bpy
 
 from ..utils.selection import (
-    mesh_selection_mode,
+    get_mesh_selection_mode,
     select_by_id,
     set_mesh_selection_mode,
-    get_all_linked_verts,
+    get_linked_verts,
 )
 
 
@@ -23,7 +23,7 @@ class BastiSelectEdgeOrIsland(bpy.types.Operator):
         )
 
     def execute(self, context):
-        selection_mode = mesh_selection_mode(context)
+        selection_mode = get_mesh_selection_mode(context)
         if selection_mode == "EDGE":
             bpy.ops.mesh.loop_multi_select(ring=False)
 
@@ -32,7 +32,7 @@ class BastiSelectEdgeOrIsland(bpy.types.Operator):
             select_by_id(
                 obj,
                 "VERT",
-                get_all_linked_verts(obj, get_index=True),
+                get_linked_verts(obj, get_index=True),
                 clear_selection=False,
             )
             set_mesh_selection_mode("OBJECT")

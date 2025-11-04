@@ -1,8 +1,8 @@
 import bpy
 
 from ..utils.selection import (
-    mesh_selection_mode,
-    get_all_selected_vertices,
+    get_mesh_selection_mode,
+    get_selected_vertices,
 )
 
 
@@ -21,10 +21,10 @@ class BastiConnectOrKnife(bpy.types.Operator):
         )
 
     def execute(self, context):
-        selection_mode = mesh_selection_mode(context)
+        selection_mode = get_mesh_selection_mode(context)
         if (
             selection_mode == "VERT"
-            and len(get_all_selected_vertices(context.active_object)) == 2
+            and len(get_selected_vertices(context.active_object)) == 2
         ):
             bpy.ops.mesh.vert_connect()
         else:

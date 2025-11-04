@@ -7,7 +7,7 @@ import bmesh
 EditMeshSelectionModes: list[Literal["VERT", "EDGE", "FACE"]] = ["VERT", "EDGE", "FACE"]
 
 
-def mesh_selection_mode(
+def get_mesh_selection_mode(
     context: bpy.types.Context,
 ) -> Union[None, str, tuple[str, tuple]]:
     if context.active_object.mode == "OBJECT":
@@ -80,7 +80,7 @@ def get_continuous_edge_selection(
     return edges_connected, edges_selected
 
 
-def get_all_selected(
+def get_selected(
     obj: bpy.types.Object,
     element_type: Literal["VERT", "EDGE", "FACE"],
     none_is_all: bool = False,
@@ -102,25 +102,25 @@ def get_all_selected(
     return [e.index for e in selection] if get_index else selection
 
 
-def get_all_selected_vertices(
+def get_selected_vertices(
     obj: bpy.types.Object, none_is_all: bool = False, get_index: bool = False
 ) -> list[bpy.types.MeshVertex]:
     """Returns a list of selected vertices in the mesh"""
-    return get_all_selected(obj, "VERT", none_is_all, get_index)
+    return get_selected(obj, "VERT", none_is_all, get_index)
 
 
-def get_all_selected_edges(
+def get_selected_edges(
     obj: bpy.types.Object, none_is_all: bool = False, get_index: bool = False
 ) -> list[bpy.types.MeshEdge]:
     """Returns a list of selected edges in the mesh"""
-    return get_all_selected(obj, "EDGE", none_is_all, get_index)
+    return get_selected(obj, "EDGE", none_is_all, get_index)
 
 
-def get_all_selected_polygons(
+def get_selected_polygons(
     obj: bpy.types.Object, none_is_all: bool = False, get_index: bool = False
 ) -> list[bpy.types.MeshPolygon]:
     """Returns a list of selected polygons in the mesh"""
-    return get_all_selected(obj, "FACE", none_is_all, get_index)
+    return get_selected(obj, "FACE", none_is_all, get_index)
 
 
 def add_vertices_from_polygons(
@@ -137,7 +137,7 @@ def add_vertices_from_polygons(
     return verts_selected
 
 
-def get_all_linked_verts(
+def get_linked_verts(
     obj: bpy.types.Object,
     bm: Optional[bmesh.types.BMesh] = None,
     seed_verts: Optional[
@@ -154,7 +154,7 @@ def get_all_linked_verts(
         if not isinstance(seed_verts[0], int):
             vert_ids = [v.index for v in seed_verts]
     else:
-        vert_ids = get_all_selected_vertices(obj, none_is_all=True, get_index=True)
+        vert_ids = get_selected_vertices(obj, none_is_all=True, get_index=True)
 
     checked_edges = []
     edges_to_check = [e for i in vert_ids for e in bm_temp.verts[i].link_edges]
@@ -189,7 +189,7 @@ def get_selected_bm_vertices(
 ) -> list[bmesh.types.BMVert]:
     """Returns a list of selected vertices in the mesh"""
     bm.verts.ensure_lookup_table()
-    return [bm.verts[i] for i in get_all_selected_vertices(obj, get_index=True)]
+    return [bm.verts[i] for i in get_selected_vertices(obj, get_index=True)]
 
 
 def select_by_id(
@@ -239,7 +239,7 @@ def force_deselect_all(obj: bpy.types.Object):
 
 def select_edges_between_vertices(obj: bpy.types.Object):
     obj.update_from_editmode()
-    selected_verts = get_all_selected_vertices(obj, get_index=True)
+    selected_verts = get_selected_vertices(obj, get_index=True)
     edges_to_select = [
         e.index for e in obj.data.edges if all(i in selected_verts for i in e.key)
     ]
@@ -248,7 +248,7 @@ def select_edges_between_vertices(obj: bpy.types.Object):
 
 def select_shared_edges_from_polygons(obj: bpy.types.Object):
     obj.update_from_editmode()
-    selected_polys = get_all_selected_polygons(obj)
+    selected_polys = get_selected_polygons(obj)
     if len(selected_polys) < 2:
         raise RuntimeError("Less than two polygons selected")
 
@@ -259,7 +259,7 @@ def select_shared_edges_from_polygons(obj: bpy.types.Object):
     if not shared_keys:
         raise RuntimeError("No shared edges found in polygons")
 
-    selected_edges = get_all_selected_edges(obj)
+    selected_edges = get_selected_edges(obj)
     shared_edges = [e for e in selected_edges if e.key in shared_keys]
     if not shared_edges:
         raise RuntimeError("Shared edge keys don't match selected edges")

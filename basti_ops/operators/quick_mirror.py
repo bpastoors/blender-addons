@@ -4,10 +4,10 @@ import bmesh
 from ..utils.mesh import duplicate_bmesh_geometry
 from ..utils.selection import (
     select_by_id,
-    mesh_selection_mode,
+    get_mesh_selection_mode,
     set_mesh_selection_mode,
     get_selected_bm_vertices,
-    get_all_linked_verts,
+    get_linked_verts,
 )
 
 
@@ -85,7 +85,7 @@ class BastiQuickMirror(bpy.types.Operator):
                 coords[axis_int] -= context.scene.cursor.location[axis_int]
             return coords
 
-        selection_mode = mesh_selection_mode(context)
+        selection_mode = get_mesh_selection_mode(context)
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
 
@@ -96,7 +96,7 @@ class BastiQuickMirror(bpy.types.Operator):
         if self.delete_target != "NO":
             deletion_side = -1 if average_location > 0 else 1
             verts_to_check = (
-                get_all_linked_verts(obj, bm, bm_verts_selected)
+                get_linked_verts(obj, bm, bm_verts_selected)
                 if self.delete_target == "LINKED"
                 else bm.verts
             )
@@ -112,7 +112,7 @@ class BastiQuickMirror(bpy.types.Operator):
             bmesh.ops.delete(bm, geom=verts_to_delete)
 
         bm_verts_to_duplicate = (
-            get_all_linked_verts(obj, bm, bm_verts_selected)
+            get_linked_verts(obj, bm, bm_verts_selected)
             if self.scope == "LINKED"
             else bm_verts_selected if self.scope == "SELECTED" else list(bm.verts)
         )

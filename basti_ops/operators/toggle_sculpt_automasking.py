@@ -1,6 +1,6 @@
 import bpy
 
-from ..utils.selection import mesh_selection_mode
+from ..utils.selection import get_mesh_selection_mode
 
 
 class BastiToggleSculptAutomasking(bpy.types.Operator):

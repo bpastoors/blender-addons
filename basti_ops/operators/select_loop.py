@@ -2,9 +2,9 @@ import bpy
 
 from ..utils.selection import (
     select_by_id,
-    mesh_selection_mode,
+    get_mesh_selection_mode,
     select_shared_edges_from_polygons,
-    get_all_selected_edges,
+    get_selected_edges,
 )
 
 
@@ -23,7 +23,7 @@ class BastiSelectLoop(bpy.types.Operator):
         )
 
     def execute(self, context):
-        selection_mode = mesh_selection_mode(context)
+        selection_mode = get_mesh_selection_mode(context)
         if not selection_mode in ["VERT", "EDGE", "FACE"]:
             return {"FINISHED"}
 
@@ -39,7 +39,7 @@ class BastiSelectLoop(bpy.types.Operator):
 
         bpy.ops.mesh.loop_multi_select(ring=True)
         bpy.ops.object.mode_set(mode="OBJECT")
-        ring_edge_keys = [e.key for e in get_all_selected_edges(obj)]
+        ring_edge_keys = [e.key for e in get_selected_edges(obj)]
         polys_to_select = []
         for poly in obj.data.polygons:
             matched_keys = [k for k in poly.edge_keys if k in ring_edge_keys]

@@ -3,8 +3,8 @@ from typing import Optional
 import bpy
 
 from .selection import (
-    get_all_selected_polygons,
-    get_all_selected_vertices,
+    get_selected_polygons,
+    get_selected_vertices,
     add_vertices_from_polygons,
 )
 
@@ -33,8 +33,8 @@ def get_evaluated_obj_and_selection(
     bpy.context.view_layer.objects.active = obj
     depsgraph = bpy.context.evaluated_depsgraph_get()
     obj_evaluated = obj.evaluated_get(depsgraph)
-    polys_selected = get_all_selected_polygons(obj_evaluated)
-    verts_selected = get_all_selected_vertices(obj_evaluated)
+    polys_selected = get_selected_polygons(obj_evaluated)
+    verts_selected = get_selected_vertices(obj_evaluated)
 
     verts_selected = add_vertices_from_polygons(
         obj_evaluated, verts_selected, polys_selected

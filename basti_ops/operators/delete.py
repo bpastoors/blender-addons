@@ -1,6 +1,6 @@
 import bpy
 
-from ..utils.selection import mesh_selection_mode
+from ..utils.selection import get_mesh_selection_mode
 
 
 class BastiDelete(bpy.types.Operator):
@@ -21,7 +21,7 @@ class BastiDelete(bpy.types.Operator):
         )
 
     def execute(self, context):
-        selection_mode = mesh_selection_mode(context)
+        selection_mode = get_mesh_selection_mode(context)
         if selection_mode in ["VERT", "EDGE", "FACE"]:
             if self.dissolve:
                 if selection_mode == "VERT":

@@ -1,9 +1,9 @@
 import bpy
 
 from ..utils.selection import (
-    mesh_selection_mode,
-    get_all_selected_vertices,
-    get_all_selected_edges,
+    get_mesh_selection_mode,
+    get_selected_vertices,
+    get_selected_edges,
     set_mesh_selection_mode,
     select_open_border_loop,
     get_linked_edges,
@@ -26,11 +26,11 @@ class BastiMakeFace(bpy.types.Operator):
         )
 
     def execute(self, context):
-        submesh_mode = mesh_selection_mode(context)
+        submesh_mode = get_mesh_selection_mode(context)
         obj = context.active_object
 
         if submesh_mode == "VERT":
-            selected_verts = get_all_selected_vertices(obj)
+            selected_verts = get_selected_vertices(obj)
             linked_edges = get_linked_edges(obj, selected_verts)
             if not (
                 len(selected_verts) == 3
@@ -48,7 +48,7 @@ class BastiMakeFace(bpy.types.Operator):
                 select_open_border_loop(obj, linked_edges)
 
         elif submesh_mode == "EDGE":
-            selected_edges = get_all_selected_edges(obj)
+            selected_edges = get_selected_edges(obj)
             if not (
                 len(selected_edges) == 2
                 and len({v for e in selected_edges for v in e.vertices}) == 3
