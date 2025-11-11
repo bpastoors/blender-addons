@@ -1,8 +1,8 @@
-from typing import Literal, Union, Optional
+from typing import Literal, Union, Optional, Sequence
 
 import bpy
 import bmesh
-from mathutils import Vector
+from mathutils import Vector, Quaternion, Euler
 
 from .object import duplicate_object
 from .selection import (
@@ -104,7 +104,6 @@ def get_average_normal(
     for e in elements:
         normal += e.normal.copy()
     if obj:
-        # todo: doesn't work for rotated objects at the moment :[
         matrix = obj.matrix_world.to_3x3()
         normal = matrix @ normal
     return normal.normalized()
@@ -181,3 +180,25 @@ def duplicate_bmesh_geometry(
             ],
         )
     return [g for g in duplication_result["geom"] if isinstance(g, bmesh.types.BMVert)]
+
+
+def rotate_vertices(
+    verts: list[bmesh.types.BMVert],
+    rotation: Union[Quaternion, Euler, tuple[Union[Vector, Sequence[float]], float]],
+    location_offset: Optional[Vector] = None,
+    obj: Optional[bpy.types.Object] = None,
+):
+    if isinstance(rotation, tuple):
+        rotation = Quaternion(*rotation)
+    for vert in verts:
+        location = vert.co.copy()
+        if obj:
+            location = obj.matrix_world @ location
+        if location_offset:
+            location = location - location_offset
+        location.rotate(rotation)
+        if location_offset:
+            location = location + location_offset
+        if obj:
+            location = obj.matrix_world.inverted() @ location
+        vert.co = location

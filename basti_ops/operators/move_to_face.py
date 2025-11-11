@@ -1,8 +1,9 @@
 from typing import Optional
+from math import radians
 
 import bpy
 import bmesh
-from mathutils import Vector
+from mathutils import Vector, Quaternion
 
 from ..utils.selection import (
     get_linked_verts,
@@ -11,7 +12,7 @@ from ..utils.selection import (
     set_mesh_selection_mode,
     get_selected_polygons,
 )
-from ..utils.mesh import get_average_location, get_average_normal
+from ..utils.mesh import get_average_location, get_average_normal, rotate_vertices
 from ..utils.raycast import raycast
 
 
@@ -23,6 +24,7 @@ class BastiMoveToFace(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     orient: bpy.props.BoolProperty(default=False)
+    spin: bpy.props.FloatProperty(name="Spin", default=0.0)
 
     @classmethod
     def poll(cls, context):
@@ -52,13 +54,15 @@ class BastiMoveToFace(bpy.types.Operator):
             bm_verts_selected = get_selected_bm_vertices(bm, obj)
             bm_verts_island = get_linked_verts(obj, bm, bm_verts_selected)
 
+            average_location_obj = get_average_location(bm_verts_selected, obj)
             if normal and selection_mode == "FACE":
                 average_normal = get_average_normal(get_selected_polygons(obj), obj)
                 rotation_difference = average_normal.rotation_difference(normal * -1)
-                for vert in bm_verts_island:
-                    vert.co.rotate(rotation_difference)
+                rotate_vertices(
+                    bm_verts_island, rotation_difference, average_location_obj, obj
+                )
 
-            average_location += get_average_location(bm_verts_selected, obj)
+            average_location += average_location_obj
 
             obj_data.append(
                 {
@@ -75,10 +79,14 @@ class BastiMoveToFace(bpy.types.Operator):
             obj = obj_data_entry["object"]
             bm = bmesh.from_edit_mesh(obj.data)
             bm.verts.ensure_lookup_table()
-            for i in obj_data_entry["selection_indexes"]:
-                location = obj.matrix_world @ bm.verts[i].co.copy()
-                location -= move_offset
-                bm.verts[i].co = obj.matrix_world.inverted() @ location
+            verts = [bm.verts[i] for i in obj_data_entry["selection_indexes"]]
+            for vert in verts:
+                vert_location = obj.matrix_world @ vert.co.copy()
+                vert_location -= move_offset
+                vert.co = obj.matrix_world.inverted() @ vert_location
+
+            if normal and self.spin != 0.0:
+                rotate_vertices(verts, (normal, radians(self.spin)), location, obj)
 
             bmesh.update_edit_mesh(obj.data)
             bm.free()
@@ -106,10 +114,12 @@ class BastiMoveToFace(bpy.types.Operator):
         for obj in objs:
             obj.location -= move_offset
             if normal:
-                difference = (
-                    Vector((0.0, 0.0, 1.0)).rotation_difference(normal).to_euler()
-                )
-                obj.rotation_euler = difference
+                difference = Vector((0.0, 0.0, 1.0)).rotation_difference(normal)
+
+                if self.spin != 0.0:
+                    difference.rotate(Quaternion(normal, radians(self.spin)))
+
+                obj.rotation_euler = difference.to_euler()
 
     def move_to_face(self, context, coords):
         raycast_result, location, normal, _, obj_target = raycast(context, coords)
