@@ -42,6 +42,7 @@ Move the selected object or mesh island to the point on a face pointing at with 
 
 When in edit mode, not just the selection, but all linked elements will be moved.
 * **orient:** in object mode the object can be rotated to align with the face normal
+* **spin:** spin around the normal that you oriented to
 
 ### .move_to_zero
 Move the selection to zero on the selected axis in world-space.
@@ -68,6 +69,12 @@ Create a ring of copies of the selection.
 * **pivot:** the pivot to rotate around
 * **axis:** the axis to rotate around
 * **count:** how many copies to add
+
+### .rotate_to_zero
+Rotate the submesh so that the face selection is aligned with an axis
+* **axis:** the axis to align with
+* **flip:** flip the direction of the target axis
+* **spin:** spin the submesh around the axis 
 
 ### .scale_to_zero
 Scale selection to zero on an axis
