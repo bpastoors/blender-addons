@@ -2,7 +2,9 @@ import math
 
 import bmesh
 import bpy
+from mathutils import Vector, Quaternion
 
+from ..utils.object import duplicate_object
 from ..utils.selection import (
     get_mesh_selection_mode,
     get_selected_bm_vertices,
@@ -41,15 +43,12 @@ class BastiRadialArray(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         return (
-            context.active_object is not None
-            and context.active_object.type == "MESH"
-            and context.active_object.mode == "EDIT"
-            and get_mesh_selection_mode(context) == "FACE"
+            context.active_object is not None and context.active_object.type == "MESH"
         )
 
     def execute(self, context):
-        from mathutils import Matrix, Vector
 
+        selection_mode = get_mesh_selection_mode(context)
         active_object = context.active_object
         rotation_pivot = Vector()
         if self.pivot == "PIVOT":
@@ -57,6 +56,31 @@ class BastiRadialArray(bpy.types.Operator):
         elif self.pivot == "CURSOR":
             rotation_pivot = context.scene.cursor.location
         rotation_rad = 2 * math.pi / self.count
+        rotation_axis = Vector(
+            (
+                1.0 if self.axis == "X" else 0.0,
+                1.0 if self.axis == "Y" else 0.0,
+                1.0 if self.axis == "Z" else 0.0,
+            )
+        )
+
+        if selection_mode == "OBJECT":
+            rotation_pivot_offest = rotation_pivot - active_object.location
+            for i in range(1, self.count):
+                new_obj = duplicate_object(active_object)
+                with bpy.context.temp_override(
+                    active_object=new_obj, selected_objects=[new_obj]
+                ):
+                    bpy.ops.transform.translate(value=rotation_pivot_offest)
+                    bpy.ops.transform.rotate(
+                        value=rotation_rad * i, orient_axis=self.axis
+                    )
+                    new_position_offset = -rotation_pivot_offest
+                    new_position_offset.rotate(
+                        Quaternion(rotation_axis, rotation_rad * i)
+                    )
+                    bpy.ops.transform.translate(value=new_position_offset)
+            return {"FINISHED"}
 
         bm = bmesh.from_edit_mesh(active_object.data)
         selected_verts = get_selected_bm_vertices(bm, active_object)
@@ -65,7 +89,7 @@ class BastiRadialArray(bpy.types.Operator):
             for vert in new_verts:
                 coords = active_object.matrix_world @ vert.co.copy()
                 coords -= rotation_pivot
-                coords = coords @ Matrix.Rotation(rotation_rad * i, 4, self.axis)
+                coords.rotate(Quaternion(rotation_axis, rotation_rad * i))
                 coords += rotation_pivot
                 vert.co = active_object.matrix_world.inverted() @ coords
 
@@ -73,5 +97,5 @@ class BastiRadialArray(bpy.types.Operator):
         bm.free()
 
         set_mesh_selection_mode("OBJECT")
-        set_mesh_selection_mode("FACE")
+        set_mesh_selection_mode(selection_mode)
         return {"FINISHED"}

@@ -2,7 +2,8 @@
 * draw polygon tool
 * split and offset uvs by 1
 * add symmetrical sliding to loop slicing
-* radial array in object mode
+* add gizmo position as pivot to radial array
+* ~~radial array in object mode~~
 * linear array
 * scatter duplicate
 * ~~merge at center for verts and collapse for edges~~
