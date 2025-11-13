@@ -37,6 +37,12 @@ Create new faces based on the selection.
 
 When exactly two adjacent edges or three vertices are selected a triangle is created. Or border edges are found based on the selection and holes filled. 
 
+
+### .merge_by_type
+Execute the merge operator to collapse Edges and Faces and merge Vertices at Center.
+* **Override Mode:** select a different merging mode
+
+
 ### .move_to_face
 Move the selected object or mesh island to the point on a face pointing at with the mouse. Can target the same or other meshes.
 
