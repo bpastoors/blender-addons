@@ -62,3 +62,11 @@ class BastiLoopSlice(bpy.types.Operator):
         if not self.multi:
             bpy.ops.transform.edge_slide("INVOKE_DEFAULT")
         return {"FINISHED"}
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+        layout.prop(self, "multi")
+        if self.multi:
+            layout.prop(self, "count")

@@ -32,7 +32,7 @@ Create a line or grid of copies of the selection.
 * **count:** how many copies to add
 * **offset:** the offsets between copies
 * **between:** distribute copies evenly in the offset
-* * **islands:** when in edit mode duplicate the whole mesh island instead of just the selection
+* **islands:** when in edit mode duplicate the whole mesh island instead of just the selection
 * **linked:** when in object mode duplicate duplicate the objects linked to the same data
 
 ### .loop_slice

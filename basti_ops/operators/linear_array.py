@@ -89,3 +89,17 @@ class BastiLinearArray(bpy.types.Operator):
         set_mesh_selection_mode(selection_mode)
         bm.free()
         return {"FINISHED"}
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+        layout.prop(self, "count")
+        layout.prop(self, "offset")
+        layout.prop(self, "between")
+
+        selection_mode = get_mesh_selection_mode(context)
+        if selection_mode == "OBJECT":
+            layout.prop(self, "linked")
+        else:
+            layout.prop(self, "islands")
