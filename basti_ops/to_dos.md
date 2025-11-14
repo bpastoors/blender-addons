@@ -5,7 +5,7 @@
 * add gizmo to radial array and linear array
 * ~~radial array in object mode~~
 * ~~linear array~~
-* scatter duplicate
+* ~~scatter duplicate~~
 * ~~merge at center for verts and collapse for edges~~
 * ~~rotate to zero (align face selection with ground)~~
 * ~~do orienting for move to face based on normal of selected faces~~

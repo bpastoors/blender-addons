@@ -39,6 +39,8 @@ class VIEW3D_MT_BastiDuplicate(bpy.types.Menu):
         pie.operator("basti.radial_array")
         op = pie.operator("wm.call_menu", text="Quick Mirror")
         op.name = "VIEW3D_MT_BastiQuickMirror"
+        pie.operator("basti.linear_array")
+        pie.operator("basti.scatter_duplicate")
 
 
 class VIEW3D_MT_BastiQuickMirror(bpy.types.Menu):
