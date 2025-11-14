@@ -40,19 +40,19 @@ class BastiQuickMirror(bpy.types.Operator):
         name="Scope",
         items=[
             ("SELECTED", "Selected", "Selected"),
-            ("LINKED", "Linked", "Linked"),
+            ("ISLAND", "Island", "Island"),
             ("ALL", "All", "All"),
         ],
-        default="LINKED",
+        default="ISLAND",
     )
     delete_target: bpy.props.EnumProperty(
         name="Delete Target Side",
         items=[
             ("NO", "No", "No"),
-            ("LINKED", "Linked", "Linked"),
+            ("ISLAND", "Island", "Island"),
             ("ALL", "All", "All"),
         ],
-        default="LINKED",
+        default="ISLAND",
     )
     auto_merge: bpy.props.BoolProperty(
         name="Automatic Merge",
@@ -97,7 +97,7 @@ class BastiQuickMirror(bpy.types.Operator):
             deletion_side = -1 if average_location > 0 else 1
             verts_to_check = (
                 get_linked_verts(obj, bm, bm_verts_selected)
-                if self.delete_target == "LINKED"
+                if self.delete_target == "ISLAND"
                 else bm.verts
             )
             verts_to_delete = [
@@ -113,7 +113,7 @@ class BastiQuickMirror(bpy.types.Operator):
 
         bm_verts_to_duplicate = (
             get_linked_verts(obj, bm, bm_verts_selected)
-            if self.scope == "LINKED"
+            if self.scope == "ISLAND"
             else bm_verts_selected if self.scope == "SELECTED" else list(bm.verts)
         )
         bm_verts_duplicated = duplicate_bmesh_geometry(bm, bm_verts_to_duplicate, True)
