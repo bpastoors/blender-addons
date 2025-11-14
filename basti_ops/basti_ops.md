@@ -27,6 +27,14 @@ Pointing at nothing copy into a new mesh object.
 Execute the appropriate deletion based on the selection mode without popping up the deletion dialog.
 * **Dissolve:** dissolve selected elements instead
 
+### .linear_array
+Create a line or grid of copies of the selection.
+* **count:** how many copies to add
+* **offset:** the offsets between copies
+* **between:** distribute copies evenly in the offset
+* * **islands:** when in edit mode duplicate the whole mesh island instead of just the selection
+* **linked:** when in object mode duplicate duplicate the objects linked to the same data
+
 ### .loop_slice
 Get the edge ring or face loop based on the selection and subdivide them. Then enter the edge sliding tool if only one edge has been added.
 * **Multi:** whether to add one edge and slide it or add multiple
@@ -75,6 +83,8 @@ Create a ring of copies of the selection.
 * **pivot:** the pivot to rotate around
 * **axis:** the axis to rotate around
 * **count:** how many copies to add
+* * **islands:** when in edit mode duplicate the whole mesh island instead of just the selection
+* **linked:** when in object mode duplicate duplicate the objects linked to the same data
 
 ### .rotate_to_zero
 Rotate the submesh so that the face selection is aligned with an axis
@@ -85,6 +95,17 @@ Rotate the submesh so that the face selection is aligned with an axis
 ### .scale_to_zero
 Scale selection to zero on an axis
 * **axis:** the axis to scale on
+
+### .scatter_duplicate
+Create copies of the selection with randomized offsets and rotations
+* **count:** how many copies to add
+* **offset:** the maximum offset
+* **add_negative_offset:** instead of random values between 0 and maximum, extend the range to -maximum to maximum
+* **rotation:** the maximum rotation in degrees
+* **add_negative_rotation:** instead of random values between 0 and maximum, extend the range to -maximum to maximum
+* **seed:** the seed for randomization
+* **islands:** when in edit mode duplicate the whole mesh island instead of just the selection
+* **linked:** when in object mode duplicate duplicate the objects linked to the same data
 
 ### .select_edge_or_island
 Select the edge loop when in edge mode or the mesh island otherwise.

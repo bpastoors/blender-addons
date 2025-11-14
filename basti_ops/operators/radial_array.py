@@ -9,6 +9,7 @@ from ..utils.selection import (
     get_mesh_selection_mode,
     get_selected_bm_vertices,
     set_mesh_selection_mode,
+    get_linked_verts,
 )
 from ..utils.mesh import duplicate_bmesh_geometry
 
@@ -39,6 +40,8 @@ class BastiRadialArray(bpy.types.Operator):
         default="Z",
     )
     count: bpy.props.IntProperty(default=4)
+    islands: bpy.props.BoolProperty(default=False)
+    linked: bpy.props.BoolProperty(default=False)
 
     @classmethod
     def poll(cls, context):
@@ -47,7 +50,6 @@ class BastiRadialArray(bpy.types.Operator):
         )
 
     def execute(self, context):
-
         selection_mode = get_mesh_selection_mode(context)
         active_object = context.active_object
         rotation_pivot = Vector()
@@ -67,7 +69,7 @@ class BastiRadialArray(bpy.types.Operator):
         if selection_mode == "OBJECT":
             rotation_pivot_offest = rotation_pivot - active_object.location
             for i in range(1, self.count):
-                new_obj = duplicate_object(active_object)
+                new_obj = duplicate_object(active_object, self.linked)
                 with bpy.context.temp_override(
                     active_object=new_obj, selected_objects=[new_obj]
                 ):
@@ -84,6 +86,9 @@ class BastiRadialArray(bpy.types.Operator):
 
         bm = bmesh.from_edit_mesh(active_object.data)
         selected_verts = get_selected_bm_vertices(bm, active_object)
+        if self.islands:
+            selected_verts = get_linked_verts(active_object, bm, selected_verts)
+
         for i in range(1, self.count):
             new_verts = duplicate_bmesh_geometry(bm, selected_verts)
             for vert in new_verts:
