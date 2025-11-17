@@ -35,7 +35,7 @@ def get_module_classes(module):
     import inspect
     from bpy import types
 
-    class_types = [types.Menu, types.Operator]
+    class_types = [types.Menu, types.Panel, types.Operator]
     return [
         t[1]
         for t in inspect.getmembers(module, inspect.isclass)
