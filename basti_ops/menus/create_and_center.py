@@ -49,24 +49,13 @@ class VIEW3D_MT_BastiQuickMirror(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        op = col.operator("basti.quick_mirror", text="X")
-        op.axis = "X"
-        op.pivot = "ORIGIN"
-        op.scope = "LINKED"
-        op.delete_target = "LINKED"
-        op.auto_merge = True
-        op = col.operator("basti.quick_mirror", text="Y")
-        op.axis = "Y"
-        op.pivot = "ORIGIN"
-        op.scope = "LINKED"
-        op.delete_target = "LINKED"
-        op.auto_merge = True
-        op = col.operator("basti.quick_mirror", text="Z")
-        op.axis = "Z"
-        op.pivot = "ORIGIN"
-        op.scope = "LINKED"
-        op.delete_target = "LINKED"
-        op.auto_merge = True
+        for axis in ["X", "Y", "Z"]:
+            op = col.operator("basti.quick_mirror", text=axis)
+            op.axis = axis
+            op.pivot = "ORIGIN"
+            op.scope = "LINKED"
+            op.delete_target = "LINKED"
+            op.auto_merge = True
 
 
 class VIEW3D_MT_BastiScaleToZero(bpy.types.Menu):
@@ -75,31 +64,25 @@ class VIEW3D_MT_BastiScaleToZero(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        op = col.operator("basti.scale_to_zero", text="X")
-        op.axis = "X"
-        op = col.operator("basti.scale_to_zero", text="Y")
-        op.axis = "Y"
-        op = col.operator("basti.scale_to_zero", text="Z")
-        op.axis = "Z"
+        for axis in ["X", "Y", "Z"]:
+            op = col.operator("basti.scale_to_zero", text=axis)
+            op.axis = axis
 
 
 class VIEW3D_MT_BastiMoveToZero(bpy.types.Menu):
-    bl_label = "Scale to Zero"
+    bl_label = "Move to Zero"
 
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        op = col.operator("basti.move_to_zero", text="ALL")
-        op.x, op.y, op.z = True, True, True
-        op = col.operator("basti.move_to_zero", text="X")
-        op.x, op.y, op.z = True, False, False
-        op = col.operator("basti.move_to_zero", text="Y")
-        op.x, op.y, op.z = False, True, False
-        op = col.operator("basti.move_to_zero", text="Z")
-        op.x, op.y, op.z = False, False, True
-        op = col.operator("basti.move_to_zero", text="XY")
-        op.x, op.y, op.z = True, True, False
-        op = col.operator("basti.move_to_zero", text="XZ")
-        op.x, op.y, op.z = True, False, True
-        op = col.operator("basti.move_to_zero", text="YZ")
-        op.x, op.y, op.z = False, True, True
+        for key, settings in {
+            "ALL": (True, True, True),
+            "X": (True, False, False),
+            "Y": (False, True, False),
+            "Z": (False, False, True),
+            "XY": (True, True, False),
+            "XZ": (True, False, True),
+            "YZ": (False, True, True),
+        }.items():
+            op = col.operator("basti.move_to_zero", text=key)
+            op.x, op.y, op.z = settings
