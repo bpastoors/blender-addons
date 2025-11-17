@@ -115,6 +115,16 @@ Select edge loops when in edge or vertex mode or face loops when in face mode.
 
 Define face loops by selecting two adjoining faces.
 
+### .set_action_center
+Set the transform pivot and orientation based on action center presets.
+* **action_center:** the preset to set
+
+### .set_cursor
+Set the location and rotation of the cursor.
+
+Origin and Pivot always work as expected, Selection and Pivot work with objects or elements in edit mode.
+* **target:** what to snap the cursor to
+* 
 ### .set_selection_mode
 Set the selection mode and toggle between object and edit mode accordingly.
 * **selection mode:** the mode to switch to
