@@ -1,8 +1,11 @@
 import bpy
 
 
-class VIEW3D_MT_BastiActionCenter(bpy.types.Menu):
+class VIEW3D_PT_BastiActionCenter(bpy.types.Panel):
     bl_label = "Action Center"
+    bl_idname = "VIEW3D_PT_basti_action_center"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "WINDOW"
 
     def draw(self, context):
         layout = self.layout
