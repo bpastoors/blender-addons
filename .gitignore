@@ -1,5 +1,8 @@
 .idea/
+<<<<<<< HEAD
 .idea
+=======
+>>>>>>> def55941860139ec1076504c32c672f9eefab84b
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
