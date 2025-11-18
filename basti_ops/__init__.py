@@ -43,7 +43,7 @@ def get_module_classes(module):
     ]
 
 
-modules = get_modules_from_subfolders(["utils", "operators", "menus"])
+modules = get_modules_from_subfolders(["utils", "operators", "menus", "panels"])
 
 
 def register():
