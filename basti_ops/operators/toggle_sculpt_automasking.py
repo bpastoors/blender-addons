@@ -4,7 +4,9 @@ from ..utils.selection import get_mesh_selection_mode
 
 
 class BastiToggleSculptAutomasking(bpy.types.Operator):
-    """Tooltip"""
+    """.toggle_sculpt_automasking
+    Toggle sculpt automasking on or off.
+    * Mode: the type of automasking to toggle"""
 
     bl_idname = "basti.toggle_sculpt_automasking"
     bl_label = "Toggle Sculpt Automasking"

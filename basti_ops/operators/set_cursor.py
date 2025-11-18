@@ -7,6 +7,11 @@ from ..utils.selection import get_mesh_selection_mode, get_selected
 
 
 class BastiSetActionCenter(bpy.types.Operator):
+    """.set_cursor
+    Set the location and rotation of the cursor.
+    Origin and Pivot always work as expected, Selection and Pivot work with objects or elements in edit mode.
+    * target: what to snap the cursor to"""
+
     bl_idname = "basti.set_cursor"
     bl_label = "Set cursor"
     bl_options = {"REGISTER", "UNDO"}

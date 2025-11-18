@@ -15,6 +15,11 @@ from ..utils.mesh import get_average_location, get_average_normal, rotate_vertic
 
 
 class BastiRotateToZero(bpy.types.Operator):
+    """.rotate_to_zero
+    Rotate the submesh so that the face selection is aligned with an axis
+    * axis: the axis to align with
+    * flip: flip the direction of the target axis
+    * spin: spin the submesh around the axis"""
 
     bl_idname = "basti.rotate_to_zero"
     bl_label = "Rotate to Zero"

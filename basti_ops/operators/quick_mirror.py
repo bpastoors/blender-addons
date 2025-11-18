@@ -12,7 +12,16 @@ from ..utils.selection import (
 
 
 class BastiQuickMirror(bpy.types.Operator):
-    """Tooltip"""
+    """.quick_mirror
+    Mirror geometry across an axis, with the option to clear geometry on the target side first.
+    The source side is determined by where the selection is in relation to the pivot.
+    * Axis: the axis to mirror on
+    * Pivot: the pivot to mirror across
+    * Scope: mirror only selected, everything linked to the selected or everything on the same side of the pivot
+    * Delete Target Side: whether to not delete anything, only elements linked to the selection or everything on the other side of the pivot
+    * Automatic Merge: doing a "merge by distance" on vertices after the mirror operation
+    * Automatic Merge Distance: the distance threshold for the automatic merging
+    """
 
     bl_idname = "basti.quick_mirror"
     bl_label = "Quick Mirror"

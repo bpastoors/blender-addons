@@ -5,10 +5,12 @@ from ..utils.mesh import join_meshes
 
 
 class BastiPasteFromClipboard(bpy.types.Operator):
-    """Tooltip"""
+    """.paste_from_clipboard
+    Paste elements copied with **.copy_to_clipboard** into the currently selected mesh
+    """
 
     bl_idname = "basti.paste_from_clipboard"
-    bl_label = "Paste polygons from clipboard"
+    bl_label = "Paste from Clipboard"
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod

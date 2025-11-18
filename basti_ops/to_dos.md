@@ -1,4 +1,5 @@
 ~~* action center cursor stuff~~
+* collapsable panels in overview panel
 * do nice axis when snapping cursor to a quad
 * check cursor to normal alignment
 * check cursor rotation property in popover panel

@@ -9,6 +9,9 @@ from ..utils.selection import (
 
 
 class BastiSelectEdgeOrIsland(bpy.types.Operator):
+    """.select_edge_or_island
+    Select the edge loop when in edge mode or the mesh island otherwise."""
+
     bl_idname = "basti.select_edge_or_island"
     bl_label = "Select Edge Loop or Island"
     bl_options = {"REGISTER", "UNDO"}

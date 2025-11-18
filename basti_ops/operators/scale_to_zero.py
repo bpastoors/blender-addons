@@ -2,7 +2,9 @@ import bpy
 
 
 class BastiScaleToZero(bpy.types.Operator):
-    """Tooltip"""
+    """.scale_to_zero
+    Scale selection to zero on an axis
+    * axis: the axis to scale on"""
 
     bl_idname = "basti.scale_to_zero"
     bl_label = "Scale to Zero"

@@ -4,10 +4,12 @@ from ..utils.selection import get_mesh_selection_mode
 
 
 class BastiMergeByType(bpy.types.Operator):
-    """Tooltip"""
+    """.merge_by_type
+    Execute the merge operator to collapse Edges and Faces and merge Vertices at Center.
+    * Override Mode: select a different merging mode"""
 
     bl_idname = "basti.merge_by_type"
-    bl_label = "Merge at center or collapse by selection type"
+    bl_label = "Merge by Type"
     bl_options = {"REGISTER", "UNDO"}
 
     override_mode: bpy.props.EnumProperty(

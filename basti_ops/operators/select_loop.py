@@ -9,8 +9,12 @@ from ..utils.selection import (
 
 
 class BastiSelectLoop(bpy.types.Operator):
+    """.select_loop
+    Select edge loops when in edge or vertex mode or face loops when in face mode.
+    Define face loops by selecting two adjoining faces."""
+
     bl_idname = "basti.select_loop"
-    bl_label = "Select Edge Loop or Face Loop"
+    bl_label = "Select Edge or Face Loop"
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod

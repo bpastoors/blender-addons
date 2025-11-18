@@ -10,8 +10,13 @@ from ..utils.raycast import raycast
 
 
 class BastiCopyToMesh(bpy.types.Operator):
+    """.copy_to_mesh
+    Copy the selected mesh elements to the mesh pointed at with the mouse cursor. The targeted mesh can be the same as the source mesh.
+    * cut: delete selected elements - cutting instead of copying
+    """
+
     bl_idname = "basti.copy_to_mesh"
-    bl_label = "Copy/Paste polygons into mesh under Cursor"
+    bl_label = "Copy/Paste to mesh"
     bl_options = {"REGISTER", "UNDO"}
 
     cut: bpy.props.BoolProperty(default=False)

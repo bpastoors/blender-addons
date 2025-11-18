@@ -4,7 +4,9 @@ from ..utils.selection import get_mesh_selection_mode
 
 
 class BastiDelete(bpy.types.Operator):
-    """Tooltip"""
+    """.delete
+    Execute the appropriate deletion based on the selection mode without popping up the deletion dialog.
+    * Dissolve: dissolve selected elements instead"""
 
     bl_idname = "basti.delete"
     bl_label = "Delete"

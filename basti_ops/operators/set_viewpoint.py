@@ -2,8 +2,12 @@ import bpy
 
 
 class BastiSetViewpoint(bpy.types.Operator):
+    """.set_viewpoint
+    Set the view axis and toggle between orthographic and perspective view. All directions are orthographic
+    * viewpoint: the viewpoint to switch to"""
+
     bl_idname = "basti.set_viewpoint"
-    bl_label = "Set the 3d view camera viewpoint"
+    bl_label = "Set 3d View Viewpoint"
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod

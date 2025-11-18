@@ -4,7 +4,9 @@ from ..utils.selection import get_mesh_selection_mode
 
 
 class BastiBevel(bpy.types.Operator):
-    """execute right bevel tool based on selection"""
+    """.bevel
+    Launch the appropriate bevel tool for the current selection mode.
+    A face selection actives the extrude tool."""
 
     bl_idname = "basti.bevel"
     bl_label = "Bevel"

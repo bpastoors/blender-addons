@@ -11,7 +11,10 @@ from ..utils.selection import (
 
 
 class BastiMakeFace(bpy.types.Operator):
-    """Creates a new face to fill a hole"""
+    """.make_face
+    Create new faces based on the selection.
+    When exactly two adjacent edges or three vertices are selected a triangle is created. Or border edges are found based on the selection and holes filled.
+    """
 
     bl_idname = "basti.make_face"
     bl_label = "Make Face"

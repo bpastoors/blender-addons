@@ -7,8 +7,11 @@ from ..utils.selection import (
 
 
 class BastiConnectOrKnife(bpy.types.Operator):
+    """.connect_or_knife
+    Create an edge between two selected vertices or launch the knife tool."""
+
     bl_idname = "basti.connect_or_knife"
-    bl_label = "Connects two selected vertices or invokes knife tool"
+    bl_label = "Connects or Knife"
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod

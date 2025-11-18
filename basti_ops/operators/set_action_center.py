@@ -2,8 +2,12 @@ import bpy
 
 
 class BastiSetActionCenter(bpy.types.Operator):
+    """.set_action_center
+    Set the transform pivot and orientation based on action center presets.
+    * action_center: the preset to set"""
+
     bl_idname = "basti.set_action_center"
-    bl_label = "Set tool center and orientation"
+    bl_label = "Set Tool Center and Orientation"
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod

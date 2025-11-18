@@ -17,7 +17,12 @@ from ..utils.raycast import raycast
 
 
 class BastiMoveToFace(bpy.types.Operator):
-    """move selected submesh or object to face under Cursor"""
+    """.move_to_face
+    Move the selected object or mesh island to the point on a face pointing at with the mouse. Can target the same or other meshes.
+    When in edit mode, not just the selection, but all linked elements will be moved.
+    * orient: in object mode the object can be rotated to align with the face normal
+    * spin: spin around the normal that you oriented to
+    """
 
     bl_idname = "basti.move_to_face"
     bl_label = "Move to Face"

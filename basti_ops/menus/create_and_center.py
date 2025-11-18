@@ -53,8 +53,8 @@ class VIEW3D_MT_BastiQuickMirror(bpy.types.Menu):
             op = col.operator("basti.quick_mirror", text=axis)
             op.axis = axis
             op.pivot = "ORIGIN"
-            op.scope = "LINKED"
-            op.delete_target = "LINKED"
+            op.scope = "ISLAND"
+            op.delete_target = "ISLAND"
             op.auto_merge = True
 
 

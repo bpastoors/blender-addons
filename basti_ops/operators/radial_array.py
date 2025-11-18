@@ -15,7 +15,14 @@ from ..utils.mesh import duplicate_bmesh_geometry
 
 
 class BastiRadialArray(bpy.types.Operator):
-    """Duplicate selected faces around the cursor"""
+    """.radial_array
+    Create a ring of copies of the selection.
+    * pivot: the pivot to rotate around
+    * axis: the axis to rotate around
+    * count: how many copies to add
+    * islands: when in edit mode duplicate the whole mesh island instead of just the selection
+    * linked: when in object mode duplicate duplicate the objects linked to the same data
+    """
 
     bl_idname = "basti.radial_array"
     bl_label = "Radial Array"

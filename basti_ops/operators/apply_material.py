@@ -9,10 +9,12 @@ from ..utils.material import (
 
 
 class BastiApplyMaterial(bpy.types.Operator):
-    """Tooltip"""
+    """.apply_material
+    Apply the material pointed at with the mouse cursor to the selection. Material can be sampled the same or a different mesh.
+    Pointing at nothing creates and applies a new material."""
 
     bl_idname = "basti.apply_material"
-    bl_label = "apply material under cursor to selected polygons"
+    bl_label = "Apply Material"
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod

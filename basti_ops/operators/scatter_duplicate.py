@@ -17,7 +17,17 @@ from ..utils.mesh import duplicate_bmesh_geometry, get_average_location
 
 
 class BastiScatterDuplicate(bpy.types.Operator):
-    """Scatter Duplicate selection"""
+    """.scatter_duplicate
+    Create copies of the selection with randomized offsets and rotations
+    * count: how many copies to add
+    * offset: the maximum offset
+    * add_negative_offset: instead of random values between 0 and maximum, extend the range to -maximum to maximum
+    * rotation: the maximum rotation in degrees
+    * add_negative_rotation: instead of random values between 0 and maximum, extend the range to -maximum to maximum
+    * seed: the seed for randomization
+    * islands: when in edit mode duplicate the whole mesh island instead of just the selection
+    * linked: when in object mode duplicate the objects linked to the same data
+    """
 
     bl_idname = "basti.scatter_duplicate"
     bl_label = "Scatter Duplicate"

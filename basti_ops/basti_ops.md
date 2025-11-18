@@ -83,7 +83,7 @@ Create a ring of copies of the selection.
 * **pivot:** the pivot to rotate around
 * **axis:** the axis to rotate around
 * **count:** how many copies to add
-* * **islands:** when in edit mode duplicate the whole mesh island instead of just the selection
+* **islands:** when in edit mode duplicate the whole mesh island instead of just the selection
 * **linked:** when in object mode duplicate duplicate the objects linked to the same data
 
 ### .rotate_to_zero
@@ -124,7 +124,7 @@ Set the location and rotation of the cursor.
 
 Origin and Pivot always work as expected, Selection and Pivot work with objects or elements in edit mode.
 * **target:** what to snap the cursor to
-* 
+
 ### .set_selection_mode
 Set the selection mode and toggle between object and edit mode accordingly.
 * **selection mode:** the mode to switch to

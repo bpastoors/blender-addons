@@ -4,6 +4,10 @@ from ..utils.selection import set_mesh_selection_mode
 
 
 class BastiSetSelectionMode(bpy.types.Operator):
+    """.set_selection_mode
+    Set the selection mode and toggle between object and edit mode accordingly.
+    * selection mode: the mode to switch to"""
+
     bl_idname = "basti.set_selection_mode"
     bl_label = "Set Mesh Selection Mode"
     bl_options = {"REGISTER", "UNDO"}

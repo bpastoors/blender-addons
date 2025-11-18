@@ -11,7 +11,10 @@ from ..utils.selection import (
 
 
 class BastiLoopSlice(bpy.types.Operator):
-    """Tooltip"""
+    """.loop_slice
+    Get the edge ring or face loop based on the selection and subdivide them. Then enter the edge sliding tool if only one edge has been added.
+    * Multi: whether to add one edge and slide it or add multiple
+    * Count: how many edges to add in multi-mode"""
 
     bl_idname = "basti.loop_slice"
     bl_label = "Loop Slice"

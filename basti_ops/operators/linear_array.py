@@ -14,7 +14,14 @@ from ..utils.mesh import duplicate_bmesh_geometry
 
 
 class BastiLinearArray(bpy.types.Operator):
-    """Duplicate selection in an array"""
+    """.linear_array
+    Create a line or grid of copies of the selection.
+    * count: how many copies to add
+    * offset: the offsets between copies
+    * between: distribute copies evenly in the offset
+    * islands: when in edit mode duplicate the whole mesh island instead of just the selection
+    * linked: when in object mode duplicate the objects linked to the same data
+    """
 
     bl_idname = "basti.linear_array"
     bl_label = "Linear Array"

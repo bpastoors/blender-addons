@@ -5,10 +5,12 @@ from ..utils.mesh import join_meshes, copy_selected_into_new_obj
 
 
 class BastiCopyToClipboard(bpy.types.Operator):
-    """Tooltip"""
+    """.copy_to_clipboard
+    Copy the selected mesh elements to the clipboard.
+    * cut: delete selected elements - cutting instead of copying"""
 
     bl_idname = "basti.copy_to_clipboard"
-    bl_label = "Copy polygons to clipboard"
+    bl_label = "Copy to clipboard"
     bl_options = {"REGISTER", "UNDO"}
 
     cut: bpy.props.BoolProperty(default=False)

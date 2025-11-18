@@ -5,7 +5,11 @@ from ..utils.mesh import get_average_location
 
 
 class BastiMoveToZero(bpy.types.Operator):
-    """Tooltip"""
+    """.move_to_zero
+    Move the selection to zero on the selected axis in world-space.
+    * X: move to zero on X axis
+    * Y: move to zero on Y axis
+    * Z: move to zero on Z axis"""
 
     bl_idname = "basti.move_to_zero"
     bl_label = "Move to Zero"
