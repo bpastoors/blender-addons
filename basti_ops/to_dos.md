@@ -1,12 +1,14 @@
-~~* action center cursor stuff~~
 * collapsable panels in overview panel
 * do nice axis when snapping cursor to a quad
 * check cursor to normal alignment
 * check cursor rotation property in popover panel
+* add custom hotkey menu
 * draw polygon tool
 * split and offset uvs by 1
 * add symmetrical sliding to loop slicing
 * add gizmo to radial array and linear array
+
+* ~~action center cursor stuff~~
 * ~~radial array in object mode~~
 * ~~linear array~~
 * ~~scatter duplicate~~

@@ -1,14 +1,12 @@
 # Basti's Operators
 
 ### .apply_material
-Apply the material pointed at with the mouse cursor to the selection. Material can be sampled the same or a different mesh.
-
+Apply the material pointed at with the mouse cursor to the selection. Material can be sampled the same or a different mesh.  
 Pointing at nothing creates and applies a new material.
 
 ### .bevel
-Launch the appropriate bevel tool for the current selection mode.
-
-A face selection actives the extrude tool. 
+Launch the appropriate bevel tool for the current selection mode.  
+A face selection activates the extrude tool. 
 
 ### .connect_or_knife
 Create an edge between two selected vertices or launch the knife tool.
@@ -18,8 +16,7 @@ Copy the selected mesh elements to the clipboard.
 * **cut:** delete selected elements - cutting instead of copying
 
 ### .copy_to_mesh
-Copy the selected mesh elements to the mesh pointed at with the mouse cursor. The targeted mesh can be the same as the source mesh.
-
+Copy the selected mesh elements to the mesh pointed at with the mouse cursor. The targeted mesh can be the same as the source mesh.  
 Pointing at nothing copy into a new mesh object.
 * **cut:** delete selected elements - cutting instead of copying
 
@@ -41,8 +38,7 @@ Get the edge ring or face loop based on the selection and subdivide them. Then e
 * **Count:** how many edges to add in multi-mode
 
 ### .make_face
-Create new faces based on the selection.
-
+Create new faces based on the selection.  
 When exactly two adjacent edges or three vertices are selected a triangle is created. Or border edges are found based on the selection and holes filled. 
 
 
@@ -52,8 +48,7 @@ Execute the merge operator to collapse Edges and Faces and merge Vertices at Cen
 
 
 ### .move_to_face
-Move the selected object or mesh island to the point on a face pointing at with the mouse. Can target the same or other meshes.
-
+Move the selected object or mesh island to the point on a face pointing at with the mouse. Can target the same or other meshes.  
 When in edit mode, not just the selection, but all linked elements will be moved.
 * **orient:** in object mode the object can be rotated to align with the face normal
 * **spin:** spin around the normal that you oriented to
@@ -68,8 +63,7 @@ Move the selection to zero on the selected axis in world-space.
 Paste elements copied with **.copy_to_clipboard** into the currently selected mesh
 
 ### .quick_mirror
-Mirror geometry across an axis, with the option to clear geometry on the target side first.
-
+Mirror geometry across an axis, with the option to clear geometry on the target side first.  
 The source side is determined by where the selection is in relation to the pivot.
 * **Axis:** the axis to mirror on 
 * **Pivot:** the pivot to mirror across 
@@ -111,8 +105,7 @@ Create copies of the selection with randomized offsets and rotations
 Select the edge loop when in edge mode or the mesh island otherwise.
 
 ### .select_loop
-Select edge loops when in edge or vertex mode or face loops when in face mode.
-
+Select edge loops when in edge or vertex mode or face loops when in face mode.  
 Define face loops by selecting two adjoining faces.
 
 ### .set_action_center
@@ -120,8 +113,7 @@ Set the transform pivot and orientation based on action center presets.
 * **action_center:** the preset to set
 
 ### .set_cursor
-Set the location and rotation of the cursor.
-
+Set the location and rotation of the cursor.  
 Origin and Pivot always work as expected, Selection and Pivot work with objects or elements in edit mode.
 * **target:** what to snap the cursor to
 
@@ -141,3 +133,7 @@ Toggle sculpt automasking on or off.
 
 
 # Basti's Menus
+
+
+
+# Basti's Panels
