@@ -1,4 +1,7 @@
 ~~* action center cursor stuff~~
+* do nice axis when snapping cursor to a quad
+* check cursor to normal alignment
+* check cursor rotation property in popover panel
 * draw polygon tool
 * split and offset uvs by 1
 * add symmetrical sliding to loop slicing
