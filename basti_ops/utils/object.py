@@ -1,6 +1,7 @@
-from typing import Optional
+from typing import Optional, Literal, Union
 
 import bpy
+from mathutils import Vector
 
 from .selection import (
     get_selected_polygons,
@@ -42,3 +43,21 @@ def get_evaluated_obj_and_selection(
         obj_evaluated, verts_selected, polys_selected
     )
     return obj_evaluated, verts_selected, polys_selected
+
+
+def align_euler_axis_with_direction(
+    obj, axis: Union[int, Literal["x", "y", "z"]], direction: Vector
+):
+    if axis == "x":
+        axis = 0
+    elif axis == "y":
+        axis = 1
+    elif axis == "z":
+        axis = 2
+    axis_vector = Vector.Fill(3)
+    axis_vector[axis] = 1.0
+
+    obj_matrix = obj.rotation_euler.to_matrix()
+    obj_axis = obj_matrix @ axis_vector
+    rotation_diff = obj_axis.rotation_difference(direction.normalized())
+    obj.rotation_euler = (rotation_diff.to_matrix() @ obj_matrix).to_euler()

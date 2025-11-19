@@ -51,6 +51,35 @@ def join_meshes(objs: list[bpy.types.Object]) -> bpy.types.Object:
     return obj_target
 
 
+def convert_elements_to_verts(
+    elements: Union[
+        list[bpy.types.MeshVertex],
+        list[bmesh.types.BMVert],
+        list[bpy.types.MeshEdge],
+        list[bmesh.types.BMEdge],
+        list[bpy.types.MeshPolygon],
+        list[bmesh.types.BMFace],
+    ],
+    obj: Optional[bpy.types.Object] = None,
+) -> Union[list[bpy.types.MeshVertex], list[bmesh.types.BMVert]]:
+    if any(
+        isinstance(elements[0], vert_type)
+        for vert_type in (bpy.types.MeshVertex, bmesh.types.BMVert)
+    ):
+        return elements
+
+    if any(
+        isinstance(elements[0], bm_type)
+        for bm_type in (bmesh.types.BMEdge, bmesh.types.BMFace)
+    ):
+        return [v for e in elements for v in e.verts]
+
+    if not obj:
+        raise ValueError("Need object to resolve to vertices, but None was given")
+
+    return [obj.data.vertices[i] for e in elements for i in e.vertices]
+
+
 def get_average_location(
     elements: Union[
         list[bpy.types.MeshVertex],
@@ -63,26 +92,7 @@ def get_average_location(
     obj: Optional[bpy.types.Object] = None,
 ) -> Vector:
     """Return the average vert location"""
-    if not elements:
-        raise ValueError("No elements to average")
-
-    if not any(
-        isinstance(elements[0], vert_type)
-        for vert_type in (bpy.types.MeshVertex, bmesh.types.BMVert)
-    ):
-        if any(
-            isinstance(elements[0], bm_type)
-            for bm_type in (bmesh.types.BMEdge, bmesh.types.BMFace)
-        ):
-            verts = [v for e in elements for v in e.verts]
-        else:
-            if not obj:
-                raise ValueError(
-                    "Need object to resolve to vertices, but none was given"
-                )
-            verts = [obj.data.vertices[i] for e in elements for i in e.vertices]
-    else:
-        verts = elements
+    verts = convert_elements_to_verts(elements, obj)
 
     location = Vector.Fill(3)
     for v in verts:
@@ -103,21 +113,11 @@ def get_average_normal(
     obj: Optional[bpy.types.Object] = None,
 ) -> Vector:
     """Return the average normal"""
-    if not elements:
-        raise ValueError("No elements to average")
-
-    if isinstance(elements[0], bmesh.types.BMEdge):
-        elements = [v for e in elements for v in e.verts]
-    elif isinstance(elements[0], bpy.types.MeshEdge):
-        if not obj:
-            raise ValueError(
-                "Need object to resolve edges to vertices, but none was given"
-            )
-        elements = [obj.data.vertices[i] for e in elements for i in e.vertices]
+    verts = convert_elements_to_verts(elements, obj)
 
     normal = Vector.Fill(3)
-    for e in elements:
-        normal += e.normal.copy()
+    for v in verts:
+        normal += v.normal.copy()
     if obj:
         matrix = obj.matrix_world.to_3x3()
         normal = matrix @ normal

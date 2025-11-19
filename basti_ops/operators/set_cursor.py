@@ -2,6 +2,7 @@ import bmesh
 import bpy
 from mathutils import Vector
 
+from ..utils.object import align_euler_axis_with_direction
 from ..utils.mesh import get_average_location, get_average_normal
 from ..utils.selection import get_mesh_selection_mode, get_selected
 
@@ -29,6 +30,28 @@ class BastiSetActionCenter(bpy.types.Operator):
         ],
         default="ORIGIN",
     )
+
+    @staticmethod
+    def align_y_axis(cursor, element, obj):
+        if any(
+            isinstance(element, vert_type)
+            for vert_type in (bpy.types.MeshVertex, bmesh.types.BMVert)
+        ):
+            return
+        if any(
+            isinstance(element, bm_type)
+            for bm_type in (bmesh.types.BMEdge, bmesh.types.BMFace)
+        ):
+            y_direction = (
+                obj.matrix_world @ element.verts[0].co
+                - obj.matrix_world @ element.verts[1].co
+            )
+        else:
+            y_direction = (
+                obj.matrix_world @ obj.data.vertices[element.vertices[0]].co
+                - obj.matrix_world @ obj.data.vertices[element.vertices[1]].co
+            )
+        align_euler_axis_with_direction(cursor, 1, y_direction)
 
     def execute(self, context):
         cursor = context.scene.cursor
@@ -65,9 +88,14 @@ class BastiSetActionCenter(bpy.types.Operator):
 
         if self.target == "ACTIVE":
             bm = bmesh.from_edit_mesh(obj_active.data)
-            elements = [bm.select_history[-1]]
-            cursor.location = get_average_location(elements, obj_active)
-            cursor.rotation_euler = get_average_normal(elements, obj_active)
+            active_element = bm.select_history.active
+            cursor.location = get_average_location([active_element], obj_active)
+            align_euler_axis_with_direction(
+                cursor, 2, get_average_normal([active_element], obj_active)
+            )
+
+            self.align_y_axis(cursor, active_element, obj_active)
+
             bm.free()
             return {"FINISHED"}
 
@@ -85,21 +113,22 @@ class BastiSetActionCenter(bpy.types.Operator):
 
             average_location = Vector((0.0, 0.0, 0.0))
             average_normal = Vector((0.0, 0.0, 0.0))
-            obj_count = len(objs)
+            used_objs = []
             for obj in objs:
                 selected_elements = get_selected(obj, selection_mode)
                 if len(selected_elements) == 0:
-                    obj_count -= 1
                     continue
                 average_location += get_average_location(selected_elements, obj)
                 average_normal += get_average_normal(selected_elements, obj)
-            if obj_count < 1:
-                obj_count = 1
-            cursor.location = average_location / obj_count
-            cursor.rotation_euler = (
-                Vector((0.0, 0.0, 1.0))
-                .rotation_difference(average_normal / obj_count)
-                .to_euler()
-            )
+                used_objs.append(obj)
+
+            obj_count = len(used_objs)
+            if obj_count >= 1:
+                cursor.location = average_location / obj_count
+                align_euler_axis_with_direction(cursor, 2, average_normal / obj_count)
+            if obj_count == 1:
+                selected_elements = get_selected(used_objs[0], selection_mode)
+                if len(selected_elements) == 1:
+                    self.align_y_axis(cursor, selected_elements[0], used_objs[0])
 
         return {"FINISHED"}
