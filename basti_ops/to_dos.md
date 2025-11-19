@@ -1,3 +1,4 @@
+* "release script" bump version, zip folder, ..add tag?
 * add custom hotkey menu
 * draw polygon tool
 * split and offset uvs by 1
