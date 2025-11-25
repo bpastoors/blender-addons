@@ -10,7 +10,7 @@ class VIEW3D_MT_BastiCreateAndCenter(bpy.types.Menu):
         pie = layout.menu_pie()
 
         # left
-        pie.operator("mesh.primitive_plane_add", text="Draw Polygon")
+        pie.operator("basti.make_polygon", text="Draw Polygon")
         # right
         pie.operator("mesh.primitive_uv_sphere_add")
         # down

@@ -7,6 +7,7 @@ from .selection import (
     get_selected_polygons,
     get_selected_vertices,
     add_vertices_from_polygons,
+    select_objects,
 )
 
 
@@ -61,3 +62,33 @@ def align_euler_axis_with_direction(
     obj_axis = obj_matrix @ axis_vector
     rotation_diff = obj_axis.rotation_difference(direction.normalized())
     obj.rotation_euler = (rotation_diff.to_matrix() @ obj_matrix).to_euler()
+
+
+def add_new_mesh_object(
+    name: str,
+    select: bool = True,
+    set_active: bool = True,
+    next_to_obj: Optional[bpy.types.Object] = None,
+    collections: Optional[list[bpy.types.Collection]] = None,
+) -> bpy.types.Object:
+    """Add a new mesh object to the collections or in the collection the next_to_obj is in"""
+    obj = bpy.data.objects.new(name, bpy.data.meshes.new(name))
+    target_collections = set()
+
+    if collections:
+        target_collections.update(collections)
+
+    if next_to_obj:
+        target_collections.update(
+            {c for c in bpy.data.collections if next_to_obj.name in c.objects}
+        )
+
+    if not target_collections:
+        target_collections = {bpy.context.scene.collection}
+
+    for col in target_collections:
+        col.objects.link(obj)
+
+    if select or set_active:
+        select_objects([obj], set_active=set_active)
+    return obj

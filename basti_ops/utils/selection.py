@@ -10,6 +10,9 @@ EditMeshSelectionModes: list[Literal["VERT", "EDGE", "FACE"]] = ["VERT", "EDGE",
 def get_mesh_selection_mode(
     context: bpy.types.Context,
 ) -> Union[None, str, tuple[str, tuple]]:
+    if not context.active_object:
+        return "OBJECT"
+
     if context.active_object.mode == "OBJECT":
         return "OBJECT"
 
@@ -96,9 +99,15 @@ def get_selected(
     else:
         raise RuntimeError("Element group not found")
 
+    # selection_mode = get_mesh_selection_mode(bpy.context)
+    # if selection_mode != element_type:
+    #     set_mesh_selection_mode(element_type)
+
     selection = [e for e in element_group if e.select]
     if none_is_all and len(selection) == 0:
         selection = element_group
+
+    # set_mesh_selection_mode(selection_mode)
     return [e.index for e in selection] if get_index else selection
 
 
@@ -200,9 +209,9 @@ def select_by_id(
     deselect: bool = False,
 ):
     """Select or deselect elements by type and index in the mesh"""
-    set_mesh_selection_mode(selection_mode, curve=False)
     if clear_selection and not deselect:
-        bpy.ops.mesh.select_all(action="DESELECT")
+        force_deselect_all(obj)
+    set_mesh_selection_mode(selection_mode, curve=False)
     bm = bmesh.from_edit_mesh(obj.data)
 
     element_group = None
@@ -220,6 +229,7 @@ def select_by_id(
 
     for i in indices:
         element_group[i].select_set(not deselect)
+
     bmesh.update_edit_mesh(obj.data)
     bm.free()
 
@@ -235,6 +245,7 @@ def force_deselect_all(obj: bpy.types.Object):
             element.select_set(False)
     bmesh.update_edit_mesh(obj.data)
     bm.free()
+    # todo: active vert stays selected
 
 
 def select_edges_between_vertices(obj: bpy.types.Object):
@@ -312,3 +323,23 @@ def select_open_border_loop(
         )
     bm.free()
     select_by_id(obj, "EDGE", [e.index for e in selected_bm_edges])
+
+
+def select_objects(
+    objs: list[bpy.types.Object],
+    clear_selection: bool = True,
+    set_active: Union[bool, int, None] = None,
+    deselect: bool = False,
+):
+    """Select a list of objects"""
+    if clear_selection:
+        set_mesh_selection_mode("OBJECT")
+        bpy.ops.object.select_all(action="DESELECT")
+    for obj in objs:
+        obj.select_set(not deselect)
+    if set_active:
+        if isinstance(set_active, bool):
+            i = 0
+        else:
+            i = max(len(objs) - 1, set_active)
+        bpy.context.view_layer.objects.active = objs[i]
