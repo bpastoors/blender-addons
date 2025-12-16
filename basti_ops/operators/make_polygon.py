@@ -16,7 +16,20 @@ from ..utils.ui import set_status_text, clear_status_text
 
 
 class BastiMakePolygon(bpy.types.Operator):
-    """.make_polygon"""
+    """.make_polygon
+    Create polygons by placing individual vertices. For polygons with vertices created clock-wise the normal points towards the camera.
+    The polygons are drawn on a virtual plane in 3d space that you can set
+    * Left Mouse: place vertex
+    * Right Mouse: remove last vertex
+    * Shift + Left Mouse: finish current polygon and start new
+    * Enter or Space: finish tool
+    * Esc: cancel tool
+
+
+    * Pivot: where to place the "draw-plane" in 3d space
+    * Align: what to align the "draw-plane" to. _Auto_ aligns with world axis closest to the camera view direction
+    * Axis: when align is set to _Set_ you can pick the axis to align the "draw-plane" with
+    """
 
     bl_idname = "basti.make_polygon"
     bl_label = "Make Polygon"
