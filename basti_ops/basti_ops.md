@@ -61,6 +61,8 @@ Move the selection to zero on the selected axis in world-space.
 
 ### .paste_from_clipboard
 Paste elements copied with **.copy_to_clipboard** into the currently selected mesh
+* **cleanup_materials:** matches materials on the pasted polygons to materials in the scene by name to avoid duplicates  
+
 
 ### .quick_mirror
 Mirror geometry across an axis, with the option to clear geometry on the target side first.  

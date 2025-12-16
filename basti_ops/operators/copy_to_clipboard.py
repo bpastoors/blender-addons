@@ -1,5 +1,6 @@
 import bpy
 
+from ..utils.selection import get_mesh_selection_mode, set_mesh_selection_mode
 from ..utils.object import delete_objects
 from ..utils.mesh import join_meshes, copy_selected_into_new_obj
 
@@ -24,17 +25,14 @@ class BastiCopyToClipboard(bpy.types.Operator):
         )
 
     def execute(self, context):
-        bpy.ops.object.mode_set(mode="OBJECT")
+        selection_mode = get_mesh_selection_mode(bpy.context)
+        set_mesh_selection_mode("OBJECT")
         obj_active = context.active_object
         objs_selected = [obj for obj in context.selected_objects if obj.type == "MESH"]
-        objs_step = []
-        for obj in objs_selected:
-            objs_step.append(copy_selected_into_new_obj(obj, self.cut))
+        objs_step = [copy_selected_into_new_obj(o, self.cut) for o in objs_selected]
 
-        if len(objs_step) > 1:
-            obj_copy = join_meshes(objs_step)
-        else:
-            obj_copy = objs_step[0]
+        obj_copy = join_meshes(objs_step)
+        obj_copy["basti_material_backup"] = [m.name for m in obj_copy.material_slots]
 
         context = {
             "object": obj_copy,
@@ -51,5 +49,5 @@ class BastiCopyToClipboard(bpy.types.Operator):
         for obj in objs_selected:
             obj.select_set(True)
         bpy.context.view_layer.objects.active = obj_active
-        bpy.ops.object.mode_set(mode="EDIT")
+        set_mesh_selection_mode(selection_mode)
         return {"FINISHED"}

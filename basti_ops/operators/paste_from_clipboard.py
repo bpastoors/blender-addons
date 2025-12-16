@@ -2,6 +2,11 @@ import bpy
 
 from ..utils.object import delete_objects
 from ..utils.mesh import join_meshes
+from ..utils.selection import (
+    get_mesh_selection_mode,
+    set_mesh_selection_mode,
+    force_deselect_all,
+)
 
 
 class BastiPasteFromClipboard(bpy.types.Operator):
@@ -13,29 +18,42 @@ class BastiPasteFromClipboard(bpy.types.Operator):
     bl_label = "Paste from Clipboard"
     bl_options = {"REGISTER", "UNDO"}
 
+    cleanup_materials: bpy.props.BoolProperty(default=True)
+
     @classmethod
     def poll(cls, context):
         return context.active_object is not None
 
     def execute(self, context):
-        current_mode = context.active_object.mode
-        bpy.ops.object.mode_set(mode="EDIT")
-        bpy.ops.mesh.select_all(action="DESELECT")
-        bpy.ops.object.mode_set(mode="OBJECT")
         obj_target = context.active_object
-        objs_selected = [obj for obj in context.selected_objects if obj.type == "MESH"]
+        selection_mode = get_mesh_selection_mode(context)
+        force_deselect_all(obj_target)
+        set_mesh_selection_mode("OBJECT")
 
-        bpy.ops.object.select_all(action="DESELECT")
-
+        objs_before = set(bpy.data.objects)
         bpy.ops.view3d.pastebuffer(autoselect=True)
-        obj_copy = bpy.context.selected_objects[0]
+        obj_pasted = list(set(bpy.data.objects) - objs_before)[0]
 
-        if not obj_copy.type == "MESH":
-            delete_objects([obj_copy])
+        if not obj_pasted.type == "MESH":
+            delete_objects([obj_pasted])
         else:
-            join_meshes([obj_target, obj_copy])
+            if self.cleanup_materials:
+                self.reuse_existing_materials(obj_pasted)
+            join_meshes([obj_target, obj_pasted])
 
-        for obj in objs_selected:
-            obj.select_set(True)
-        bpy.ops.object.mode_set(mode=current_mode)
+        set_mesh_selection_mode(selection_mode)
         return {"FINISHED"}
+
+    @staticmethod
+    def reuse_existing_materials(obj: bpy.types.Object):
+        material_backups = obj.get("basti_material_backup")
+        material_copies = {m.name for m in obj.material_slots}
+        if material_backups and len(material_backups) == len(obj.material_slots):
+            for i in range(len(material_backups)):
+                if material_backups[i] in bpy.data.materials:
+                    obj.material_slots[i].material = bpy.data.materials[
+                        material_backups[i]
+                    ]
+            for material_name in material_copies:
+                if material_name not in obj.material_slots:
+                    bpy.data.materials.remove(bpy.data.materials[material_name])

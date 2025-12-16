@@ -8,6 +8,8 @@ from .selection import (
     get_selected_vertices,
     add_vertices_from_polygons,
     select_objects,
+    get_mesh_selection_mode,
+    set_mesh_selection_mode,
 )
 
 
@@ -21,11 +23,14 @@ def duplicate_object(
     obj: bpy.types.Object, instance: bool = False
 ) -> Optional[bpy.types.Object]:
     """Duplicate the object"""
+    selection_mode = get_mesh_selection_mode(bpy.context)
+    set_mesh_selection_mode("OBJECT")
     objs_before = set(bpy.context.scene.objects)
     with bpy.context.temp_override(active_object=obj, selected_objects=[obj]):
         bpy.ops.object.duplicate(linked=instance)
     objs_after = set(bpy.context.scene.objects)
     new_objs = list(objs_after - objs_before)
+    set_mesh_selection_mode(selection_mode)
     return new_objs[0] if new_objs else None
 
 
