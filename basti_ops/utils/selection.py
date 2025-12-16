@@ -9,7 +9,7 @@ EditMeshSelectionModes: list[Literal["VERT", "EDGE", "FACE"]] = ["VERT", "EDGE",
 
 def get_mesh_selection_mode(
     context: bpy.types.Context,
-) -> Union[None, str, tuple[str, tuple]]:
+) -> Union[None, str, tuple[bool, bool, bool]]:
     if not context.active_object:
         return "OBJECT"
 
@@ -24,14 +24,13 @@ def get_mesh_selection_mode(
             return "EDGE"
         elif selection_mask == (False, False, True):
             return "FACE"
-        return "MIXED", selection_mask
+        return selection_mask
 
     return None
 
 
 def set_mesh_selection_mode(
-    selection_mode: str,
-    selection_mask: Optional[tuple[bool, bool, bool]] = None,
+    selection_mode: Union[str, tuple[bool, bool, bool], None],
     curve: Optional[bool] = False,
 ):
     if selection_mode == "OBJECT":
@@ -44,27 +43,29 @@ def set_mesh_selection_mode(
 
     if selection_mode == "SCULPT":
         bpy.ops.object.mode_set(mode="SCULPT")
+        return
 
-    if selection_mode == "MIXED":
+    if isinstance(selection_mode, tuple):
         bpy.ops.object.mode_set(mode="EDIT")
-        if selection_mask:
-            for i in range(0, 3):
-                bpy.ops.mesh.select_mode(
-                    use_extend=True,
-                    type=EditMeshSelectionModes[i],
-                    action="ENABLE" if selection_mask[i] is True else "DISABLE",
-                )
+        for i in range(0, 3):
+            bpy.ops.mesh.select_mode(
+                use_extend=True,
+                type=EditMeshSelectionModes[i],
+                action="ENABLE" if selection_mode[i] is True else "DISABLE",
+            )
+        return
 
     if selection_mode in EditMeshSelectionModes:
-        bpy.ops.object.mode_set_with_submode(mode="EDIT")
+        bpy.ops.object.mode_set(mode="EDIT")
         bpy.ops.mesh.select_mode(type=selection_mode)
 
 
 def get_continuous_edge_selection(
     edges_selected: list[bmesh.types.BMEdge], start_index: int = 0
-) -> (list[bmesh.types.BMEdge], list[bmesh.types.BMEdge]):
+) -> tuple[list[bmesh.types.BMEdge], list[bmesh.types.BMEdge]]:
     """Returns a continuous edge selection based on the seed index and the rest"""
-    edges_connected, edges_connected_to_test = [edges_selected[start_index]]
+    edges_connected = [edges_selected[start_index]]
+    edges_connected_to_test = [edges_selected[start_index]]
     edges_selected.remove(edges_selected[start_index])
 
     while len(edges_connected_to_test) > 0:
@@ -211,7 +212,7 @@ def select_by_id(
     """Select or deselect elements by type and index in the mesh"""
     if clear_selection and not deselect:
         force_deselect_all(obj)
-    set_mesh_selection_mode(selection_mode, curve=False)
+    set_mesh_selection_mode(selection_mode)
     bm = bmesh.from_edit_mesh(obj.data)
 
     element_group = None
@@ -236,8 +237,9 @@ def select_by_id(
 
 def force_deselect_all(obj: bpy.types.Object):
     """Force deselect all elements"""
+    set_mesh_selection_mode("OBJECT")
     obj.select_set(True)
-    set_mesh_selection_mode("MIXED", (True, True, True))
+    set_mesh_selection_mode((True, True, True))
     bm = bmesh.from_edit_mesh(obj.data)
 
     for group in [bm.verts, bm.edges, bm.faces]:

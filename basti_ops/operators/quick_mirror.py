@@ -138,6 +138,7 @@ class BastiQuickMirror(bpy.types.Operator):
                 coords = obj.matrix_world.inverted() @ coords
             vert.co = coords
 
+        bm.normal_update()
         bmesh.update_edit_mesh(obj.data)
         bm.free()
 
