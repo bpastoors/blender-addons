@@ -9,7 +9,6 @@ from ..utils.selection import (
     get_linked_verts,
     get_selected_bm_vertices,
     get_mesh_selection_mode,
-    set_mesh_selection_mode,
     get_selected_polygons,
 )
 from ..utils.mesh import get_average_location, get_average_normal, rotate_vertices
@@ -93,13 +92,9 @@ class BastiMoveToFace(bpy.types.Operator):
             if normal and self.spin != 0.0:
                 rotate_vertices(verts, (normal, radians(self.spin)), location, obj)
 
+            bm.normal_update()
             bmesh.update_edit_mesh(obj.data)
             bm.free()
-        set_mesh_selection_mode("OBJECT")
-        if isinstance(selection_mode, tuple):
-            set_mesh_selection_mode(selection_mode[0], selection_mode[1])
-        else:
-            set_mesh_selection_mode(selection_mode)
 
     def move_objects_to_point(
         self,
