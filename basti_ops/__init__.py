@@ -9,6 +9,11 @@ bl_info = {
     "category": "Generic",
 }
 
+from bpy import types
+
+MODULE_FOLDERS = ["utils", "operators", "menus", "panels"]
+CLASS_TYPES = [types.Menu, types.Panel, types.Operator]
+
 
 def get_modules_from_subfolders(folders: list[str]):
     from importlib import import_module
@@ -33,17 +38,15 @@ def get_modules_from_subfolders(folders: list[str]):
 
 def get_module_classes(module):
     import inspect
-    from bpy import types
 
-    class_types = [types.Menu, types.Panel, types.Operator]
     return [
         t[1]
         for t in inspect.getmembers(module, inspect.isclass)
-        if any(issubclass(t[1], class_type) for class_type in class_types)
+        if any(issubclass(t[1], class_type) for class_type in CLASS_TYPES)
     ]
 
 
-modules = get_modules_from_subfolders(["utils", "operators", "menus", "panels"])
+modules = get_modules_from_subfolders(MODULE_FOLDERS)
 
 
 def register():
