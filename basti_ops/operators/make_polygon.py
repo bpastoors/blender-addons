@@ -1,6 +1,7 @@
 import bmesh
 import bpy
 from bpy_extras import view3d_utils
+from mathutils import Vector, geometry
 
 from ..utils.selection import (
     get_mesh_selection_mode,
@@ -30,12 +31,47 @@ class BastiMakePolygon(bpy.types.Operator):
     edges = []
     current_vert = None
     current_vert_initial_location = None
+    plane = [Vector.Fill(3), Vector.Fill(3), Vector.Fill(3)]
+
+    pivot: bpy.props.EnumProperty(
+        name="Pivot",
+        items=[
+            ("ORIGIN", "Origin", "World Origin"),
+            ("PIVOT", "Pivot", "Object Pivot"),
+            ("CURSOR", "Cursor", "3d Cursor"),
+            ("FOCAL", "Focal Point", "Focal Point"),
+        ],
+        default="FOCAL",
+    )
+    align: bpy.props.EnumProperty(
+        name="Align",
+        items=[
+            ("SCREEN", "Screen", "Screen"),
+            ("AUTO", "Auto Align", "Auto Align"),
+            ("CURSOR", "Cursor", "Cursor"),
+            ("SET", "Set Override", "Set Override"),
+        ],
+        default="AUTO",
+    )
+    axis: bpy.props.EnumProperty(
+        name="Axis",
+        items=[
+            ("XY", "XY", "XY"),
+            ("XZ", "XZ", "XZ"),
+            ("YZ", "YZ", "YZ"),
+        ],
+        default="XY",
+    )
 
     @classmethod
     def poll(cls, context):
         return context.area.type == "VIEW_3D"
 
     def invoke(self, context, event):
+        wm = context.window_manager
+        return wm.invoke_props_dialog(self)
+
+    def execute(self, context):
         self.initial_active_object = context.active_object
         self.initial_selection_mode = get_mesh_selection_mode(context)
 
@@ -64,6 +100,8 @@ class BastiMakePolygon(bpy.types.Operator):
         self.bm.verts.ensure_lookup_table()
         bmesh.update_edit_mesh(self.obj.data)
 
+        self.get_plane(context)
+
         context.window_manager.modal_handler_add(self)
 
         set_status_text(
@@ -85,11 +123,11 @@ class BastiMakePolygon(bpy.types.Operator):
             return {"CANCELLED"}
 
         if event.type == "RET" and event.value == "PRESS":
-            self.handle_finish()
+            self.handle_finish_section()
             return {"FINISHED"}
 
         if event.type == "SPACE" and event.value == "PRESS":
-            self.handle_finish()
+            self.handle_finish_section()
             return {"FINISHED"}
 
         if event.shift and event.type == "LEFTMOUSE" and event.value == "PRESS":
@@ -142,23 +180,24 @@ class BastiMakePolygon(bpy.types.Operator):
             self.bm = None
             bpy.data.objects.remove(self.obj)
 
-        self.wrap_up(self.initial_selection_mode)
+        self.clean_up(self.initial_selection_mode)
 
-    def handle_finish(self):
+    def handle_finish_section(self):
         selection_mode = "FACE"
         if len(self.vertices) > 2:
             new_face = self.bm.faces.new(self.vertices)
             set_mesh_selection_mode(selection_mode)
             new_face.select_set(True)
+            bmesh.ops.reverse_faces(self.bm, faces=[new_face])
         else:
             selection_mode = "VERT"
             set_mesh_selection_mode(selection_mode)
             for vert in self.vertices:
                 vert.select_set(True)
-        self.wrap_up(selection_mode)
+        self.clean_up(selection_mode)
 
     def handle_restart(self, location):
-        self.handle_finish()
+        self.handle_finish_section()
         set_mesh_selection_mode("VERT")
         self.bm = bmesh.from_edit_mesh(self.obj.data)
         self.handle_start_vertex(location)
@@ -225,7 +264,7 @@ class BastiMakePolygon(bpy.types.Operator):
         self.current_vert = None
         self.current_vert_initial_location = None
 
-    def wrap_up(self, selection_mode: str):
+    def clean_up(self, selection_mode: str):
         if self.bm:
             bmesh.update_edit_mesh(self.obj.data)
             self.bm.free()
@@ -237,39 +276,76 @@ class BastiMakePolygon(bpy.types.Operator):
         set_mesh_selection_mode(selection_mode)
         clear_status_text()
 
-    @staticmethod
-    def get_location(context, event):
+    def get_plane(self, context):
+        pivot = Vector.Fill(3)
+        axis_1 = Vector.Fill(3)
+        axis_2 = Vector.Fill(3)
+
+        view_location = context.region_data.view_location
+        view_direction = Vector((0.0, 0.0, -1.0))
+        view_direction.rotate(context.region_data.view_rotation)
+
+        if self.pivot == "PIVOT":
+            pivot = self.obj.location
+        elif self.pivot == "CURSOR":
+            pivot = context.scene.cursor.location
+
+        if self.pivot == "FOCAL":
+            pivot = view_location
+
+        if self.align == "SCREEN":
+            return
+
+        if self.align == "CURSOR":
+            axis_1[0] = 1.0
+            axis_2[1] = 1.0
+            axis_1.rotate(context.scene.cursor.rotation_euler)
+            axis_2.rotate(context.scene.cursor.rotation_euler)
+        else:
+            axis = "XY"
+            if self.align == "AUTO":
+                x = abs(view_direction.x)
+                y = abs(view_direction.y)
+                z = abs(view_direction.z)
+                if x > y:
+                    if x > z:
+                        axis = "YZ"
+                elif y > z:
+                    axis = "XZ"
+            elif self.align == "SET":
+                axis = self.axis
+
+            if axis == "XY":
+                axis_1[0] = 1.0
+                axis_2[1] = 1.0
+            elif axis == "XZ":
+                axis_1[0] = 1.0
+                axis_2[2] = 1.0
+            elif axis == "YZ":
+                axis_1[1] = 1.0
+                axis_2[2] = 1.0
+
+        self.plane = [pivot, axis_1 + pivot, axis_2 + pivot]
+
+        # for checking pivot and axis in the viewport
+        # self.bm.verts.new(pivot)
+        # self.bm.verts.new(pivot + axis_1)
+        # self.bm.verts.new(pivot + axis_2)
+
+    def get_location(self, context, event):
         region = context.region
         rv3d = context.region_data
 
         coord = (event.mouse_region_x, event.mouse_region_y)
 
-        # Cast ray into the scene
-        view_vector = view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
+        if self.align == "SCREEN":
+            return view3d_utils.region_2d_to_location_3d(
+                region, rv3d, coord, self.plane[0]
+            )
+
+        ray_vector = view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
         ray_origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, coord)
 
-        # Get the camera view direction (normalized)
-        view_direction = view_vector.normalized()
-
-        # Determine which axis is most aligned with the view direction
-        abs_x = abs(view_direction.x)
-        abs_y = abs(view_direction.y)
-        abs_z = abs(view_direction.z)
-
-        # Choose the plane based on which axis has the largest component
-        if abs_z >= abs_x and abs_z >= abs_y:
-            # Project onto XY plane (Z = 0)
-            if view_vector.z != 0:
-                factor = -ray_origin.z / view_vector.z
-                return ray_origin + factor * view_vector
-        if abs_y >= abs_x and abs_y >= abs_z:
-            # Project onto XZ plane (Y = 0)
-            if view_vector.y != 0:
-                factor = -ray_origin.y / view_vector.y
-                return ray_origin + factor * view_vector
-        # Project onto YZ plane (X = 0)
-        if view_vector.x != 0:
-            factor = -ray_origin.x / view_vector.x
-            return ray_origin + factor * view_vector
-
-        return None
+        return geometry.intersect_ray_tri(
+            self.plane[0], self.plane[1], self.plane[2], ray_vector, ray_origin, False
+        )
