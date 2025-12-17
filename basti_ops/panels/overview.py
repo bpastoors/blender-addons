@@ -52,6 +52,7 @@ class VIEW3D_PT_BastiOverview(bpy.types.Panel):
             "linear_array",
             "loop_slice",
             "make_face",
+            "make_polygon",
             "merge_by_type",
             "move_to_zero",
             "paste_from_clipboard",
