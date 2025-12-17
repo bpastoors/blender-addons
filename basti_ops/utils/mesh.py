@@ -34,8 +34,6 @@ def sort_verts_by_position(
 
 def join_meshes(objs: list[bpy.types.Object]) -> bpy.types.Object:
     """Joins a list of Objects into the first one"""
-    selection_mode = get_mesh_selection_mode(bpy.context)
-    set_mesh_selection_mode("OBJECT")
     if len(objs) < 2:
         return objs[0]
     obj_target = objs[0]
@@ -47,7 +45,6 @@ def join_meshes(objs: list[bpy.types.Object]) -> bpy.types.Object:
     }
     with bpy.context.temp_override(**context_overrides):
         bpy.ops.object.join()
-        set_mesh_selection_mode(selection_mode)
     return obj_target
 
 
