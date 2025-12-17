@@ -1,3 +1,5 @@
+from typing import Union
+
 import bmesh
 import bpy
 from bpy_extras import view3d_utils
@@ -53,6 +55,7 @@ class BastiMakePolygon(bpy.types.Operator):
             ("PIVOT", "Pivot", "Object Pivot"),
             ("CURSOR", "Cursor", "3d Cursor"),
             ("FOCAL", "Focal Point", "Focal Point"),
+            ("ACTIVE", "Active Selection", "Active Selection"),
         ],
         default="FOCAL",
     )
@@ -63,6 +66,7 @@ class BastiMakePolygon(bpy.types.Operator):
             ("AUTO", "Auto Align", "Auto Align"),
             ("CURSOR", "Cursor", "Cursor"),
             ("SET", "Set Override", "Set Override"),
+            ("ACTIVE", "Active Selection", "Active Selection"),
         ],
         default="AUTO",
     )
@@ -277,7 +281,7 @@ class BastiMakePolygon(bpy.types.Operator):
         self.current_vert = None
         self.current_vert_initial_location = None
 
-    def clean_up(self, selection_mode: str):
+    def clean_up(self, selection_mode: Union[str, tuple[bool, bool, bool]]):
         if self.bm:
             bmesh.update_edit_mesh(self.obj.data)
             self.bm.free()
