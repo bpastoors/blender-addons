@@ -18,6 +18,7 @@
 * append copy modifiers (bavo)
 * a button tht makes a txt file or something tht shows which key combos don't do anything yet (bavo)
 * blender startup file manager/ stored startupfiles ( to maybe have more than 1  under file> new> then custom files) (bavo)
+* select a texture node in shader editing, or in the image viewer and press a button to open the folder it is located in (Armin)
 
 
 * ~~check cursor rotation property in popover panel~~

@@ -20,6 +20,8 @@ def get_materials_on_objects(objs: list[bpy.types.Mesh]) -> list[bpy.types.Mater
 
 
 def find_material_id_in_obj(obj: bpy.types.Mesh, material: bpy.types.Material) -> int:
+    if not obj.material_slots:
+        return -1
     if len(obj.material_slots) > 0:
         material_list = [slot.material for slot in obj.material_slots]
         if material in material_list:
