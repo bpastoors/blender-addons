@@ -34,10 +34,25 @@ class BastiSetViewpoint(bpy.types.Operator):
                 is_perspective = area.spaces.active.region_3d.is_perspective
         if self.viewpoint == "PERSPECTIVE":
             if not is_perspective:
+                new_location = context.scene.pop("basti_camera_location_backup", None)
+                new_rotation = context.scene.pop("basti_camera_rotation_backup", None)
+
                 bpy.ops.view3d.view_persportho()
+
+                if new_location is not None:
+                    context.region_data.view_location = new_location
+                if new_rotation is not None:
+                    context.region_data.view_rotation = new_rotation
+
             return {"FINISHED"}
 
         if is_perspective:
+            context.scene["basti_camera_location_backup"] = (
+                context.region_data.view_location
+            )
+            context.scene["basti_camera_rotation_backup"] = (
+                context.region_data.view_rotation
+            )
             bpy.ops.view3d.view_persportho()
         bpy.ops.view3d.view_axis(type=self.viewpoint)
         return {"FINISHED"}

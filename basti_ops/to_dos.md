@@ -1,6 +1,12 @@
 * "release script" bump version, zip folder, ..add tag?
 * add custom hotkey menu
 * face extrude bevel in one tool
+* set pivot
+  * to selection
+  * to active
+  * to cursor
+  * to origin
+  * to bounding box (center, left, right etc)
 * draw polygon tool
   * check if pivot is behind camera and set to focal point then
   * add "active" to pivot and align enums
