@@ -46,7 +46,7 @@ class BastiPasteFromClipboard(bpy.types.Operator):
 
     @staticmethod
     def reuse_existing_materials(obj: bpy.types.Object):
-        material_backups = obj.get("basti_material_backup")
+        material_backups = obj.pop("basti_material_backup")
         material_copies = {m.name for m in obj.material_slots}
         if material_backups and len(material_backups) == len(obj.material_slots):
             for i in range(len(material_backups)):
