@@ -150,19 +150,38 @@ def get_linked_verts(
     ] = None,
     get_index: Optional[bool] = False,
 ) -> Union[list[bpy.types.MeshVertex], list[bmesh.types.BMVert], list[int]]:
-    bm_temp = bm or bmesh.from_edit_mesh(obj.data)
+    bm_temp = bmesh.from_edit_mesh(obj.data) if bm is None else bm
     bm_temp.verts.ensure_lookup_table()
     bm_temp.edges.ensure_lookup_table()
 
-    vert_ids = []
-    if seed_verts:
-        if not isinstance(seed_verts[0], int):
-            vert_ids = [v.index for v in seed_verts]
-    else:
-        vert_ids = get_selected_vertices(obj, none_is_all=True, get_index=True)
+    selected_vert_ids = get_selected_vertices(obj, get_index=True)
 
-    checked_edges = []
-    edges_to_check = [e for i in vert_ids for e in bm_temp.verts[i].link_edges]
+    if seed_verts:
+        vert_ids = (
+            seed_verts
+            if isinstance(seed_verts[0], int)
+            else [v.index for v in seed_verts]
+        )
+    else:
+        vert_ids = (
+            selected_vert_ids
+            if len(selected_vert_ids) > 0
+            else [v.index for v in bm_temp.verts]
+        )
+
+    checked_edges = [
+        e
+        for v_id in vert_ids
+        for e in bm_temp.verts[v_id].link_edges
+        if all(v.index in vert_ids for v in e.verts)
+    ]
+    edges_to_check = [
+        e
+        for i in vert_ids
+        for e in bm_temp.verts[i].link_edges
+        if e.index not in checked_edges
+        and not all(v.index in vert_ids for v in e.verts)
+    ]
 
     while len(edges_to_check) > 0:
         edge = edges_to_check.pop()
@@ -174,19 +193,23 @@ def get_linked_verts(
             edges_to_check.extend(
                 e
                 for e in bm_temp.verts[vert.index].link_edges
-                if e not in checked_edges
+                if e.index not in checked_edges
+                and not all(v.index in vert_ids for v in e.verts)
             )
 
-    if not bm:
+    if get_index:
+        return_list = vert_ids
+    else:
+        return_list = (
+            [bm.verts[i] for i in vert_ids]
+            if bm is not None
+            else [obj.data.vertices[i] for i in vert_ids]
+        )
+
+    if bm is None:
         bm_temp.free()
 
-    if get_index:
-        return vert_ids
-    return (
-        [bm.verts[i] for i in vert_ids]
-        if bm
-        else [obj.data.vertices[i] for i in vert_ids]
-    )
+    return return_list
 
 
 def get_selected_bm_vertices(
