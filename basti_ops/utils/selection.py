@@ -100,15 +100,10 @@ def get_selected(
     else:
         raise RuntimeError("Element group not found")
 
-    # selection_mode = get_mesh_selection_mode(bpy.context)
-    # if selection_mode != element_type:
-    #     set_mesh_selection_mode(element_type)
-
     selection = [e for e in element_group if e.select]
     if none_is_all and len(selection) == 0:
         selection = element_group
 
-    # set_mesh_selection_mode(selection_mode)
     return [e.index for e in selection] if get_index else selection
 
 
