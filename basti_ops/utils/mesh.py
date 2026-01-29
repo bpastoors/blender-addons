@@ -214,3 +214,35 @@ def rotate_vertices(
         if obj:
             location = obj.matrix_world.inverted() @ location
         vert.co = location
+
+
+def get_element_direction(
+    obj: bpy.types.Object,
+    element: Union[
+        bpy.types.MeshVertex,
+        bmesh.types.BMVert,
+        bpy.types.MeshEdge,
+        bmesh.types.BMEdge,
+        bpy.types.MeshPolygon,
+        bmesh.types.BMFace,
+    ],
+) -> Optional[Vector]:
+    if any(
+        isinstance(element, vert_type)
+        for vert_type in (bpy.types.MeshVertex, bmesh.types.BMVert)
+    ):
+        return None
+    if any(
+        isinstance(element, bm_type)
+        for bm_type in (bmesh.types.BMEdge, bmesh.types.BMFace)
+    ):
+        direction = (
+            obj.matrix_world @ element.verts[0].co
+            - obj.matrix_world @ element.verts[1].co
+        )
+    else:
+        direction = (
+            obj.matrix_world @ obj.data.vertices[element.vertices[0]].co
+            - obj.matrix_world @ obj.data.vertices[element.vertices[1]].co
+        )
+    return direction

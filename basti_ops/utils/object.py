@@ -1,7 +1,8 @@
 from typing import Optional, Literal, Union
 
 import bpy
-from mathutils import Vector
+import bmesh
+from mathutils import Vector, Euler, Quaternion
 
 from .selection import (
     get_selected_polygons,
@@ -53,13 +54,14 @@ def get_evaluated_obj_and_selection(
 
 def align_euler_axis_with_direction(
     obj, axis: Union[int, Literal["x", "y", "z"]], direction: Vector
-):
-    if axis == "x":
-        axis = 0
-    elif axis == "y":
-        axis = 1
-    elif axis == "z":
-        axis = 2
+) -> Quaternion:
+    if not isinstance(axis, int):
+        if axis == "x":
+            axis = 0
+        elif axis == "y":
+            axis = 1
+        elif axis == "z":
+            axis = 2
     axis_vector = Vector.Fill(3)
     axis_vector[axis] = 1.0
 
@@ -67,6 +69,7 @@ def align_euler_axis_with_direction(
     obj_axis = obj_matrix @ axis_vector
     rotation_diff = obj_axis.rotation_difference(direction.normalized())
     obj.rotation_euler = (rotation_diff.to_matrix() @ obj_matrix).to_euler()
+    return rotation_diff
 
 
 def add_new_mesh_object(
@@ -97,3 +100,60 @@ def add_new_mesh_object(
     if select or set_active:
         select_objects([obj], set_active=set_active)
     return obj
+
+
+def get_average_object_location(objs: list[bpy.types.Object]) -> Vector:
+    average_location = Vector((0.0, 0.0, 0.0))
+    for obj in objs:
+        average_location += obj.location
+    return average_location / len(objs)
+
+
+def get_average_object_rotation_euler(objs: list[bpy.types.Object]) -> Vector:
+    average_rotation = Vector((0.0, 0.0, 0.0))
+    for obj in objs:
+        average_rotation += Vector([*obj.rotation_euler])
+    return average_rotation / len(objs)
+
+
+def set_object_location(
+    obj: bpy.types.Object, location: Vector, compensate: bool = True
+):
+    selection_mode = get_mesh_selection_mode(bpy.context)
+    if compensate:
+        set_mesh_selection_mode("OBJECT")
+        location_offset = location - obj.location
+        bm = bmesh.new()
+        bm.from_mesh(obj.data)
+        bm.verts.ensure_lookup_table()
+        for vert in bm.verts:
+            coords = obj.matrix_world @ vert.co.copy()
+            coords -= location_offset
+            vert.co = obj.matrix_world.inverted() @ coords
+        bm.to_mesh(obj.data)
+        bm.free()
+    obj.location = location
+    set_mesh_selection_mode(selection_mode)
+
+
+def set_object_rotation_euler(
+    obj: bpy.types.Object, rotation: Euler, compensate: bool = True
+):
+    selection_mode = get_mesh_selection_mode(bpy.context)
+    if compensate:
+        set_mesh_selection_mode("OBJECT")
+        rotation_quat = rotation.to_quaternion()
+        rotation_offset = rotation_quat.rotation_difference(
+            obj.rotation_euler.to_quaternion()
+        )
+        bm = bmesh.new()
+        bm.from_mesh(obj.data)
+        bm.verts.ensure_lookup_table()
+        for vert in bm.verts:
+            coords = vert.co.copy()
+            coords.rotate(rotation_offset)
+            vert.co = coords
+        bm.to_mesh(obj.data)
+        bm.free()
+    obj.rotation_euler = rotation
+    set_mesh_selection_mode(selection_mode)

@@ -2,8 +2,12 @@ import bmesh
 import bpy
 from mathutils import Vector
 
-from ..utils.object import align_euler_axis_with_direction
-from ..utils.mesh import get_average_location, get_average_normal
+from ..utils.object import (
+    align_euler_axis_with_direction,
+    get_average_object_location,
+    get_average_object_rotation_euler,
+)
+from ..utils.mesh import get_average_location, get_average_normal, get_element_direction
 from ..utils.selection import get_mesh_selection_mode, get_selected
 
 
@@ -33,25 +37,9 @@ class BastiSetActionCenter(bpy.types.Operator):
 
     @staticmethod
     def align_y_axis(cursor, element, obj):
-        if any(
-            isinstance(element, vert_type)
-            for vert_type in (bpy.types.MeshVertex, bmesh.types.BMVert)
-        ):
-            return
-        if any(
-            isinstance(element, bm_type)
-            for bm_type in (bmesh.types.BMEdge, bmesh.types.BMFace)
-        ):
-            y_direction = (
-                obj.matrix_world @ element.verts[0].co
-                - obj.matrix_world @ element.verts[1].co
-            )
-        else:
-            y_direction = (
-                obj.matrix_world @ obj.data.vertices[element.vertices[0]].co
-                - obj.matrix_world @ obj.data.vertices[element.vertices[1]].co
-            )
-        align_euler_axis_with_direction(cursor, 1, y_direction)
+        direction = get_element_direction(obj, element)
+        if direction:
+            align_euler_axis_with_direction(cursor, 1, direction)
 
     def execute(self, context):
         cursor = context.scene.cursor
@@ -76,14 +64,10 @@ class BastiSetActionCenter(bpy.types.Operator):
                 cursor.location = obj_active.location
                 cursor.rotation_euler = obj_active.rotation_euler
             if self.target == "SELECTION":
-                objs = context.selected_objects
-                average_location = Vector((0.0, 0.0, 0.0))
-                average_rotation = Vector((0.0, 0.0, 0.0))
-                for obj in objs:
-                    average_location += obj.location
-                    average_rotation += Vector([*obj.rotation_euler])
-                cursor.location = average_location / len(objs)
-                cursor.rotation_euler = average_rotation / len(objs)
+                cursor.location = get_average_object_location(context.selected_objects)
+                cursor.rotation_euler = get_average_object_rotation_euler(
+                    context.selected_objects
+                )
             return {"FINISHED"}
 
         if self.target == "ACTIVE":

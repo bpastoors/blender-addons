@@ -23,8 +23,8 @@ class VIEW3D_MT_BastiCreateAndCenter(bpy.types.Menu):
         # up-right
         pie.operator("mesh.primitive_cylinder_add")
         # down-left
-        op = pie.operator("wm.call_menu", text="Scale to Zero")
-        op.name = "VIEW3D_MT_BastiScaleToZero"
+        op = pie.operator("wm.call_menu", text="Set Pivot")
+        op.name = "VIEW3D_MT_BastiSetPivot"
         # down-right
         op = pie.operator("wm.call_menu_pie", text="Duplicate")
         op.name = "VIEW3D_MT_BastiDuplicate"

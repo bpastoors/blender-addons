@@ -130,7 +130,13 @@ Set the transform pivot and orientation based on action center presets.
 
 ### .set_cursor
 Set the location and rotation of the cursor.  
-Origin and Pivot always work as expected, Selection and Pivot work with objects or elements in edit mode.
+Origin and Pivot always work as expected, Selection and Active work with objects or elements in edit mode.
+* **target:** what to snap the cursor to
+
+### .set_pivot
+Set the pivot of selected objects.  
+Origin and Cursor always work as expected, Selection and Active work with objects or elements in edit mode.
+Bounding Box and Selection in edit mode work on each object individually if multiple are selected.
 * **target:** what to snap the cursor to
 
 ### .set_selection_mode

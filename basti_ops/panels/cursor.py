@@ -11,9 +11,6 @@ class VIEW3D_PT_BastiCursor(bpy.types.Panel):
         layout = self.layout
         layout.operator_enum("basti.set_cursor", "target")
         layout.separator(type="LINE")
-        # col = layout.column()
-        # col.use_property_split = True
-        # col.use_property_decorate = False
 
         layout.prop(context.scene.cursor, "location")
         layout.prop(context.scene.cursor, "rotation_euler")
