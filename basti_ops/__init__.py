@@ -3,7 +3,7 @@ bl_info = {
     "author": "Bastian",
     "description": "",
     "blender": (4, 5, 0),
-    "version": (0, 3, 0),
+    "version": (0, 4, 0),
     "location": "",
     "warning": "",
     "category": "Generic",
