@@ -11,6 +11,11 @@ A face selection activates the extrude tool.
 ### .connect_or_knife
 Create an edge between two selected vertices or launch the knife tool.
 
+### .copy_modifiers
+Copy all modifiers and the properties of the active object to all selected objects.
+* **append:** keep existing modifiers on the target object
+* **move:** remove modifiers from the active object"""
+
 ### .copy_to_clipboard
 Copy the selected mesh elements to the clipboard.
 * **cut:** delete selected elements - cutting instead of copying
@@ -72,6 +77,11 @@ Move the selection to zero on the selected axis in world-space.
 * **X:** move to zero on X axis 
 * **Y:** move to zero on Y axis 
 * **Z:** move to zero on Z axis 
+
+### .open_image_folder
+Open the source folders of the images in selected image nodes or the active image in the image editor.  
+Executing the operator when not in the shader or image editor will check the active node
+in the active material of the active object if it has an associated image and will execute for that.
 
 ### .paste_from_clipboard
 Paste elements copied with **.copy_to_clipboard** into the currently selected mesh

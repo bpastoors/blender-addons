@@ -1,12 +1,6 @@
 * "release script" bump version, zip folder, ..add tag?
 * add custom hotkey menu
 * face extrude bevel in one tool
-* set pivot
-  * to selection
-  * to active
-  * to cursor
-  * to origin
-  * to bounding box (center, left, right etc)
 * draw polygon tool
   * check if pivot is behind camera and set to focal point then
   * add "active" to pivot and align enums
@@ -21,10 +15,8 @@
 * add symmetrical sliding to loop slicing
 * add gizmo to radial array and linear array
 * add spin gizmo to move to face
-* append copy modifiers (bavo)
 * a button tht makes a txt file or something tht shows which key combos don't do anything yet (bavo)
 * blender startup file manager/ stored startupfiles ( to maybe have more than 1  under file> new> then custom files) (bavo)
-* select a texture node in shader editing, or in the image viewer and press a button to open the folder it is located in (Armin)
 
 
 * ~~check cursor rotation property in popover panel~~
@@ -40,3 +32,6 @@
 * ~~make loop slice sliding more reliable (doesn't always get selected)~~
 * ~~snapping menu~~
 * ~~uv island selection with double-click~~
+* ~~set pivot~~
+* ~~append copy modifiers (bavo)~~
+* ~~select a texture node in shader editing, or in the image viewer and press a button to open the folder it is located in (Armin)~~
